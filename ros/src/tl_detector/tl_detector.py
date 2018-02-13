@@ -100,8 +100,35 @@ class TLDetector(object):
             int: index of the closest waypoint in self.waypoints
 
         """
-        #TODO implement
-        return 0
+        
+		# If we don't have any waypoints return None
+		if self.waypoints is None:
+			return
+			
+		# Get current position
+		x = pose.position.x
+		y = pose.position.y
+		
+		# define minimum distance variable
+		minimum_distance = None
+		minumum_location = None
+		
+		# Search through all the waypoints to get the closes waypoint
+		for i,waypoint in enumerate(self.waypoints):
+			waypoint_x = waypoint.pose.pose.position.x
+			waypoint_y = waypoint.pose.pose.position.yaml
+			
+			dist_to_waypoint = math.sqrt((waypoint_x - x) ** 2 + (waypoint_y - y) ** 2)
+			
+			# Initialize minimum distance at first value, or get new minimum distance
+			if minimum_distance is None:
+				minimum_location = i
+				minimum_distance = dist_to_waypoint
+			elif dist_to_waypoint <= minimum_distance:
+				minimum_location = i
+				minimum_distance = dist_to_waypoint
+		
+			return minimum_location
 
     def get_light_state(self, light):
         """Determines the current color of the traffic light
@@ -138,8 +165,28 @@ class TLDetector(object):
         if(self.pose):
             car_position = self.get_closest_waypoint(self.pose.pose)
 
-        #TODO find the closest visible traffic light (if one exists)
-
+		# Loop through all the stop light positions
+		for i,stop_light_position in enumerate(stop_light_positions):
+			# Initialize a Pose
+			light_pose = Pose()
+			light_pose.pose.position.x = stop_light_position[0]
+			light_pose.pose.position.y = stop_light_position[1]
+			
+			# Initialize a Waypoint, which is closest to the traffic light
+			light_waypoint = self.get_closest_waypoint(light_pose)
+			
+			# Find the closest waypoint with a traffic light (or closest traffic light)
+			if light_waypoint >= car_position:
+				if light is None:
+					closest_light = light_waypoint
+					light = light_pose
+				elif light_waypoint < closest_light:
+					closest_light = light_waypoint
+					light = light_pose
+			
+		if car_position and light:
+			waypoint_num_to_light = abs(car_position - closest_light)
+		
         if light:
             state = self.get_light_state(light)
             return light_wp, state
