@@ -96,7 +96,7 @@ class WaypointUpdater(object):
                 min_found = True
             elif min_found:
                 return min_loc
-        return None
+        return min_loc
 
 
     def send_final_waypoints(self):
