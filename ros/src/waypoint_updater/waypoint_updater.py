@@ -77,7 +77,7 @@ class WaypointUpdater(object):
         
     def get_circular_waypoints(self, startIT, endIT):
         if endIT > len(self.waypoints):
-            ret_waypoints = self.waypoints[startIT:] + self.waypoints[:self.waypoints.length() - endIT]
+            ret_waypoints = self.waypoints[startIT:] + self.waypoints[:len(self.waypoints) - endIT]
         else:
             ret_waypoints = self.waypoints[startIT:endIT]
         
