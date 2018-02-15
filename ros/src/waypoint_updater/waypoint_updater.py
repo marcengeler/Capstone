@@ -86,7 +86,7 @@ class WaypointUpdater(object):
             waypoint_y = waypoint.pose.pose.position.y
             # distance
             dist = math.sqrt((self.current_pose.position.x - waypoint_x) ** 2 + (self.current_pose.position.y - waypoint_y) ** 2)
-
+            rospy.loginfo(dist)
             if min_dist is None:
                 dist = min_dist
                 min_loc = i
