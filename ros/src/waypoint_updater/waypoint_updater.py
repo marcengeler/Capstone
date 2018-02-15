@@ -80,7 +80,7 @@ class WaypointUpdater(object):
             ret_waypoints = self.waypoints[startIT:] + self.waypoints[:len(self.waypoints) - endIT]
         else:
             ret_waypoints = self.waypoints[startIT:endIT]
-        
+        return ret_waypoints
 
     def find_closest_waypoint(self):
         min_dist = None
