@@ -59,11 +59,11 @@ class DBWNode(object):
         self.controller = Controller(wheel_base=wheel_base, steer_ratio=steer_ratio, min_speed=0.53,
                                      max_lat_accel=max_lat_accel, max_steer_angle=max_steer_angle,
                                      accel_limit=accel_limit, decel_limit=decel_limit,
-									 max_vel = MAX_SPEED)
+                                     max_vel = MAX_SPEED)
 
         # TODO: Subscribe to all the topics you need to
-		rospy.Subscriber('/dbw_enabled', Bool, self.dbw_enabled_cb)
-		rospy.Subscriber('/current_velocity', TwistStamped, self.current_velocity_cb, queue_size=1)
+        rospy.Subscriber('/dbw_enabled', Bool, self.dbw_enabled_cb)
+        rospy.Subscriber('/current_velocity', TwistStamped, self.current_velocity_cb, queue_size=1)
         rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb, queue_size=1)
 
         self.loop()
@@ -73,13 +73,13 @@ class DBWNode(object):
         while not rospy.is_shutdown():
             # TODO: Get predicted throttle, brake, and steering using `twist_controller`
             # You should only publish the control commands if dbw is enabled
-			
+            
             throttle, brake, steering = self.controller.control(linear_velocity = self.twist.twist.linear,
                                                                 angular_velocity = self.twist.twist.angular,
                                                                 current_velocity = self.current_velocity.twist.linear,
                                                                 dbw_state = self.dbw_enabled)
             if self.dbw_enabled:
-				self.publish(throttle, brake, steer)
+                self.publish(throttle, brake, steer)
             rate.sleep()
 
     def publish(self, throttle, brake, steer):
@@ -100,7 +100,7 @@ class DBWNode(object):
         bcmd.pedal_cmd = brake
         self.brake_pub.publish(bcmd)
 
-	def dbw_enabled_cb(self, msg):
+    def dbw_enabled_cb(self, msg):
         self.dbw_enabled = msg
 
     def current_velocity_cb(self, msg):
