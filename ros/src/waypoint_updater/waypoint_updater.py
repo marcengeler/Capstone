@@ -83,7 +83,7 @@ class WaypointUpdater(object):
         
 
     def find_closest_waypoint(self):
-        # for i, waypoint in enumerate(self.waypoints):
+        min_dist = None
         for (i, waypoint) in enumerate(self.waypoints):
             waypoint_x = waypoint.pose.pose.position.x
             waypoint_y = waypoint.pose.pose.position.y
