@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Lane
 from dbw_mkz_msgs.msg import ThrottleCmd, SteeringCmd, BrakeCmd, SteeringReport
-from geometry_msgs.msg import TwistStamped
+from geometry_msgs.msg import TwistStamped, PoseStamped
 import math
 
 from twist_controller import Controller
@@ -65,6 +65,8 @@ class DBWNode(object):
         rospy.Subscriber('/dbw_enabled', Bool, self.dbw_enabled_cb)
         rospy.Subscriber('/current_velocity', TwistStamped, self.current_velocity_cb, queue_size=1)
         rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb, queue_size=1)
+        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
+        rospy.Subscriber('/final_waypoints', Lane, self.waypoints_cb)
 
         self.twist = None
         self.current_velocity = None
@@ -75,8 +77,6 @@ class DBWNode(object):
     def loop(self):
         rate = rospy.Rate(50) # 50Hz
         while not rospy.is_shutdown():
-            # TODO: Get predicted throttle, brake, and steering using `twist_controller`
-            # You should only publish the control commands if dbw is enabled
             if self.twist is None or self.current_velocity is None:
                 continue
             
@@ -89,8 +89,6 @@ class DBWNode(object):
             rate.sleep()
 
     def publish(self, throttle, brake, steer):
-        rospy.loginfo("publishing throttle %f, brake %f, steer %f", throttle, brake, steer)
-        
         tcmd = ThrottleCmd()
         tcmd.enable = True
         tcmd.pedal_cmd_type = ThrottleCmd.CMD_PERCENT
@@ -116,6 +114,12 @@ class DBWNode(object):
 
     def twist_cb(self, msg):
         self.twist = msg
+
+    def pose_cb(self, msg):
+        self.pose = msg
+
+    def waypoints_cb(self, msg):
+        self.waypoints = msg
 
 if __name__ == '__main__':
     DBWNode()

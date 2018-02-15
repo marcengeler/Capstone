@@ -117,6 +117,9 @@ class WaypointUpdater(object):
             return
 
         pos = self.find_closest_waypoint()
+        rospy.loginfo("####")
+        rospy.loginfo(pos)
+        
             
         waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
         
