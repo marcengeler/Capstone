@@ -18,8 +18,6 @@ Once you have created dbw_node, you will update this node to use the status of t
 Please note that our simulator also provides the exact location of traffic lights and their
 current status in `/vehicle/traffic_lights` message. You can use this message to build this node
 as well as to verify your TL classifier.
-
-TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
@@ -51,7 +49,7 @@ class WaypointUpdater(object):
     def waypoints_cb(self, waypoints):
         # Initialize the waypoints
         if self.waypoints is None:
-            self.waypoints = waypoints.waypoints
+            self.waypoints = waypoints
 
     def traffic_cb(self, msg):
         # For initial phase ignore traffic lights, later on flag traffic light
@@ -90,8 +88,6 @@ class WaypointUpdater(object):
             # distance
             dist = math.sqrt((self.current_pose.position.x - waypoint_x) ** 2 + (self.current_pose.position.y - waypoint_y) ** 2)
 
-            # This isn't entirely right.. need to make sure the waypoint is in front of the
-            # car as well as being the nearest
             if min_dist is None:
                 dist = min_dist
                 min_loc = i
@@ -120,7 +116,6 @@ class WaypointUpdater(object):
         rospy.loginfo("####")
         rospy.loginfo(pos)
 
-            
         waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
         
         for (i,waypoint) in enumerate(waypoints):
