@@ -121,6 +121,7 @@ class WaypointUpdater(object):
         waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
         
         for (i,waypoint) in enumerate(waypoints):
+            rospy.loginfo(waypoint)
             self.set_waypoint_velocity(waypoint, i, MAX_SPEED)
         
         lane = Lane()
