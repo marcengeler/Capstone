@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import Bool, Lane
+from std_msgs.msg import Bool
 from dbw_mkz_msgs.msg import ThrottleCmd, SteeringCmd, BrakeCmd, SteeringReport
 from geometry_msgs.msg import TwistStamped, PoseStamped
 import math
@@ -65,8 +65,6 @@ class DBWNode(object):
         rospy.Subscriber('/dbw_enabled', Bool, self.dbw_enabled_cb)
         rospy.Subscriber('/current_velocity', TwistStamped, self.current_velocity_cb, queue_size=1)
         rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb, queue_size=1)
-        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        rospy.Subscriber('/final_waypoints', Lane, self.waypoints_cb)
 
         self.twist = None
         self.current_velocity = None
@@ -114,12 +112,6 @@ class DBWNode(object):
 
     def twist_cb(self, msg):
         self.twist = msg
-
-    def pose_cb(self, msg):
-        self.pose = msg
-
-    def waypoints_cb(self, msg):
-        self.waypoints = msg
 
 if __name__ == '__main__':
     DBWNode()
