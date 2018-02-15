@@ -36,8 +36,6 @@ class WaypointUpdater(object):
 
         self.current_pose = None
         self.waypoints = None
-        self.min_dist = None
-        self.i = None
         
         rospy.spin()
 
@@ -82,6 +80,7 @@ class WaypointUpdater(object):
 
     def find_closest_waypoint(self):
         min_dist = None
+        min_found = False
         for (i, waypoint) in enumerate(self.waypoints):
             waypoint_x = waypoint.pose.pose.position.x
             waypoint_y = waypoint.pose.pose.position.y
@@ -94,19 +93,11 @@ class WaypointUpdater(object):
             elif dist < min_dist:
                 min_dist = dist
                 min_loc = i
+                min_found = True
+            elif min_found:
+                return min_loc
+        return None
 
-        if self.i == min_loc and min_dist > self.min_dist:
-            self.min_dist = min_dist
-
-        if self.min_dist is None:
-            self.min_dist = min_dist
-            self.i = min_loc
-        elif min_dist > self.min_dist:
-            self.i = min_loc + 1
-        else:
-            self.min_dist = min_dist
-            self.i = min_loc
-        return self.i
 
     def send_final_waypoints(self):
         if self.waypoints is None:
