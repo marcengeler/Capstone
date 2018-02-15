@@ -46,10 +46,10 @@ class WaypointUpdater(object):
         self.current_pose = msg.pose
         self.send_final_waypoints()
 
-    def waypoints_cb(self, waypoints):
+    def waypoints_cb(self, msg):
         # Initialize the waypoints
         if self.waypoints is None:
-            self.waypoints = waypoints
+            self.waypoints = msg.waypoints
 
     def traffic_cb(self, msg):
         # For initial phase ignore traffic lights, later on flag traffic light
