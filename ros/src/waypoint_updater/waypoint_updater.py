@@ -104,6 +104,7 @@ class WaypointUpdater(object):
 
         if self.min_dist is None:
             self.min_dist = min_dist
+            self.i = min_loc
         elif min_dist > self.min_dist:
             self.i = min_loc + 1
         else:
