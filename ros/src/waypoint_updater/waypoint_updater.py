@@ -38,6 +38,8 @@ class WaypointUpdater(object):
 
         self.current_pose = None
         self.waypoints = None
+        self.min_dist = None
+        self.i = None
         
         rospy.spin()
 
@@ -79,10 +81,41 @@ class WaypointUpdater(object):
         else:
             ret_waypoints = self.waypoints[startIT:endIT]
         
-        
+
+    def find_closest_waypoint(self):
+        # for i, waypoint in enumerate(self.waypoints):
+        for (i, waypoint) in enumerate(self.waypoints):
+            waypoint_x = waypoint.pose.pose.position.x
+            waypoint_y = waypoint.pose.pose.position.y
+            # distance
+            dist = math.sqrt((self.current_pose.position.x - waypoint_x) ** 2 + (self.current_pose.position.y - waypoint_y) ** 2)
+
+            # This isn't entirely right.. need to make sure the waypoint is in front of the
+            # car as well as being the nearest
+            if min_dist is None:
+                dist = min_dist
+                min_loc = i
+            elif dist < min_dist:
+                min_dist = dist
+                min_loc = i
+
+        if self.i == min_loc and min_dist > self.min_dist:
+            self.min_dist = min_dist
+
+        if self.min_dist is None:
+            self.min_dist = min_dist
+        elif min_dist > self.min_dist:
+            self.i = min_loc + 1
+        else:
+            self.min_dist = min_dist
+            self.i = min_loc
+        return self.i
+
     def send_final_waypoints(self):
         if self.waypoints is None:
             return
+
+        pos = self.find_closest_waypoint()
             
         waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
         
