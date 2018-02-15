@@ -22,7 +22,7 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-
+MAX_SPEED = 8.3 # in M/s corresponds to 30 kph
 
 class WaypointUpdater(object):
     def __init__(self):
@@ -30,30 +30,32 @@ class WaypointUpdater(object):
 
         rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
-
-        # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
-
-
+		rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb)
+		rospy.Subscriber('/obstacle_waypoint', Int32, self.obstacle_cb)
+		
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
-        # TODO: Add other member variables you need below
-
+        self.current_pose = None
+		self.waypoints = None
+		
         rospy.spin()
 
     def pose_cb(self, msg):
-        # TODO: Implement
-        pass
+        # Parse Position Update
+		self.current_pose = msg.pose
+		self.send_final_waypoints()
 
     def waypoints_cb(self, waypoints):
-        # TODO: Implement
-        pass
+        # Initialize the waypoints
+		if self.waypoints is None:
+			self.waypoints = waypoints.waypoints
 
     def traffic_cb(self, msg):
-        # TODO: Callback for /traffic_waypoint message. Implement
+        # For initial phase ignore traffic lights, later on flag traffic light
         pass
 
     def obstacle_cb(self, msg):
-        # TODO: Callback for /obstacle_waypoint message. We will implement it later
+        # Parse Obstacles which are passed to us.
         pass
 
     def get_waypoint_velocity(self, waypoint):
@@ -69,6 +71,28 @@ class WaypointUpdater(object):
             dist += dl(waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
             wp1 = i
         return dist
+		
+	def get_circular_waypoints(self, startIT, endIT):
+		if endIT > self.waypoints.length():
+			ret_waypoints = self.waypoints[startIT:] + self.waypoints[:self.waypoints.length() - endIT]
+		else:
+			ret_waypoints = self.waypoints[startIT:endIT]
+		
+		
+	def send_final_waypoints(self):
+		if self.waypoints is None:
+			return
+			
+		waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
+		
+		for (i,waypoint) in enumerate(waypoints):
+			self.set_waypoint_velocity(waypoint, i, MAX_SPEED)
+		
+		lane = Lane()
+		lane.waypoints = waypoints
+		lane.header.frame_id = '/world'
+		lane.header.stamp = rospy.Time(0)
+		self.final_waypoints_pub.publish(lane)
 
 
 if __name__ == '__main__':
