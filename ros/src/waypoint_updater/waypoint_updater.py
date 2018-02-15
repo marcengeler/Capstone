@@ -93,9 +93,6 @@ class WaypointUpdater(object):
             elif dist < min_dist:
                 min_dist = dist
                 min_loc = i
-                min_found = True
-            elif min_found:
-                return min_loc
         return min_loc
 
 
