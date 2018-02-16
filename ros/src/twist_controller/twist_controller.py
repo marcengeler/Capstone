@@ -10,15 +10,23 @@ ONE_MPH = 0.44704
 
 class Controller(object):
     def __init__(self, *args, **kwargs):
-        self.throttle_control = PID(2.0, 1.5, 1.0)
+        self.throttle_control = PID(
+								kp = 2.0, 
+								ki = 1.5,
+								kd = 1.0,
+								mn = -1.0,
+								mx = 1.0)
+
         self.steering_control = YawController(kwargs['wheel_base'], kwargs['steer_ratio'],
                                          kwargs['min_speed'], kwargs['max_lat_accel'],
                                          kwargs['max_steer_angle']
                                          )
+										 
         self.time = None
         self.max_vel = kwargs['max_vel']
         self.accel_limit = kwargs['accel_limit']
         self.decel_limit = kwargs['decel_limit']
+		self.TP1 = LowPassFilter(0.5, 0.2)
 
     def control(self, *args, **kwargs):
         if self.time is None:
@@ -33,8 +41,9 @@ class Controller(object):
         dbw_state = kwargs['dbw_state']
         
         velocity_margin = min(linear_velocity.x, self.max_vel) - current_velocity.x
-        velocity_margin = min(velocity_margin, self.accel_limit * dt)
-        velocity_margin = max(velocity_margin, self.decel_limit * dt)
+        # Take out limits to develop
+		# velocity_margin = min(velocity_margin, self.accel_limit * dt)
+        # velocity_margin = max(velocity_margin, self.decel_limit * dt)
         
         throttle = self.throttle_control.step(velocity_margin, dt)
         steer = self.steering_control.get_steering(linear_velocity.x, angular_velocity.z, current_velocity.x)
@@ -44,7 +53,7 @@ class Controller(object):
         
         if throttle < 0:
             throttle = 0.0
-            brake = throttle
+            brake = -throttle
         else:
             brake = 0.0
         
