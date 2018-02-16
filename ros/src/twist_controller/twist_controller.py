@@ -48,8 +48,7 @@ class Controller(object):
         throttle = self.throttle_control.step(velocity_margin, dt)
         steer = self.steering_control.get_steering(linear_velocity.x, angular_velocity.z, current_velocity.x)
         
-        throttle = min(-1.0, throttle)
-        throttle = max(throttle, 1.0)
+        throttle = self.TP1.filt(throttle)
         
         if throttle < 0:
             throttle = 0.0
