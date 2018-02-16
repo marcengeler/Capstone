@@ -26,7 +26,8 @@ class Controller(object):
         self.max_vel = kwargs['max_vel']
         self.accel_limit = kwargs['accel_limit']
         self.decel_limit = kwargs['decel_limit']
-        self.TP1 = LowPassFilter(0.5, 0.1)
+        self.TP1_throttle = LowPassFilter(0.5, 0.1)
+        self.TP1_steer = LowPassFilter(0.3, 0.05)
 
     def control(self, *args, **kwargs):
         linear_velocity = kwargs['linear_velocity']
@@ -41,15 +42,15 @@ class Controller(object):
         dt = rospy.get_time() - self.time
 
         velocity_margin = min(linear_velocity.x, self.max_vel) - current_velocity.x
-        # Take out limits to develop
+        # Incorporate Acceleration and Deceleration Limits
         velocity_margin = min(velocity_margin, self.accel_limit * dt)
         velocity_margin = max(velocity_margin, self.decel_limit * dt)
         
         throttle = self.throttle_control.step(velocity_margin, dt)
         steer = self.steering_control.get_steering(linear_velocity.x, angular_velocity.z, current_velocity.x)
         
-        throttle = self.TP1.filt(throttle)
-        steer = self.TP1.filt(steer)
+        throttle = self.TP1_throttle.filt(throttle)
+        steer = self.TP1_steer.filt(steer)
         
         if throttle < 0:
             throttle = 0.0
