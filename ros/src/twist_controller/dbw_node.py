@@ -30,8 +30,8 @@ Once you have the proposed throttle, brake, and steer values, publish it on the 
 that we have created in the `__init__` function.
 
 '''
-
-MAX_SPEED = 8.3*1.5 # in M/s corresponds to 45 (30) kph
+# 8.3 corresponds to 30 kph
+MAX_SPEED = 12.5
 
 class DBWNode(object):
     def __init__(self):
