@@ -11,8 +11,8 @@ ONE_MPH = 0.44704
 class Controller(object):
     def __init__(self, *args, **kwargs):
         self.throttle_control = PID(
-                                kp = 2.0, 
-                                ki = 1.5,
+                                kp = 3.0,
+                                ki = 2.4,
                                 kd = 1.0,
                                 mn = -1.0,
                                 mx = 1.0)
@@ -27,7 +27,7 @@ class Controller(object):
         self.accel_limit = kwargs['accel_limit']
         self.decel_limit = kwargs['decel_limit']
         self.TP1_throttle = LowPassFilter(0.5, 0.1)
-        self.TP1_steer = LowPassFilter(0.3, 0.05)
+        self.TP1_steer = LowPassFilter(0.7, 0.2)
 
     def control(self, *args, **kwargs):
         linear_velocity = kwargs['linear_velocity']
