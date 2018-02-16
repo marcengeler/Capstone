@@ -30,7 +30,7 @@ class Controller(object):
 
     def control(self, *args, **kwargs):
         linear_velocity = kwargs['linear_velocity']
-        angular_velocity = kwargs['linear_velocity']
+        angular_velocity = kwargs['angular_velocity']
         current_velocity = kwargs['current_velocity']
         dbw_state = kwargs['dbw_state']
 
