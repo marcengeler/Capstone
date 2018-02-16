@@ -27,7 +27,7 @@ class Controller(object):
         self.accel_limit = kwargs['accel_limit']
         self.decel_limit = kwargs['decel_limit']
         self.TP1_throttle = LowPassFilter(0.5, 0.1)
-        self.TP1_steer = LowPassFilter(0.7, 0.2)
+        self.TP1_steer = LowPassFilter(0.25, 0.1)
 
     def control(self, *args, **kwargs):
         linear_velocity = kwargs['linear_velocity']
