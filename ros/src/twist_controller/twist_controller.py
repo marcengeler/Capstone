@@ -26,7 +26,7 @@ class Controller(object):
         self.max_vel = kwargs['max_vel']
         self.accel_limit = kwargs['accel_limit']
         self.decel_limit = kwargs['decel_limit']
-        self.TP1 = LowPassFilter(0.2, 0.05)
+        self.TP1 = LowPassFilter(0.5, 0.1)
 
     def control(self, *args, **kwargs):
         linear_velocity = kwargs['linear_velocity']
@@ -49,7 +49,7 @@ class Controller(object):
         steer = self.steering_control.get_steering(linear_velocity.x, angular_velocity.z, current_velocity.x)
         
         throttle = self.TP1.filt(throttle)
-        steer = -self.TP1.filt(steer)
+        steer = self.TP1.filt(steer)
         
         if throttle < 0:
             throttle = 0.0
