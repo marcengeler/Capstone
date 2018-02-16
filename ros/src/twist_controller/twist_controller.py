@@ -34,13 +34,15 @@ class Controller(object):
             return 0.0, 0.0, 0.0
             
         dt = rospy.get_time() - self.time
-                
+
         linear_velocity = kwargs['linear_velocity']
         angular_velocity = kwargs['linear_velocity']
         current_velocity = kwargs['current_velocity']
         dbw_state = kwargs['dbw_state']
         
         velocity_margin = min(linear_velocity.x, self.max_vel) - current_velocity.x
+
+        rospy.loginfo("Velocity Margin: %f", velocity_margin)
         # Take out limits to develop
         # velocity_margin = min(velocity_margin, self.accel_limit * dt)
         # velocity_margin = max(velocity_margin, self.decel_limit * dt)
@@ -49,6 +51,7 @@ class Controller(object):
         steer = self.steering_control.get_steering(linear_velocity.x, angular_velocity.z, current_velocity.x)
         
         throttle = self.TP1.filt(throttle)
+        steer = self.TP1.filt(steer)
         
         if throttle < 0:
             throttle = 0.0
@@ -57,8 +60,5 @@ class Controller(object):
             brake = 0.0
         
         self.time = rospy.get_time()
-
-        print("throttle: {0}", throttle)
-        print("brake: {0}", brake)
-        print("steer: {0}", steer)
+        rospy.loginfo("Throttle: %f, Brake: %f, Steer: %f", throttle, brake, steer)
         return throttle, brake, steer

@@ -83,7 +83,7 @@ class DBWNode(object):
                                                                 current_velocity = self.current_velocity.twist.linear,
                                                                 dbw_state = self.dbw_enabled)
             if self.dbw_enabled:
-                self.publish(0.5, 0, 1)
+                self.publish(throttle, brake, steering)
             rate.sleep()
 
     def publish(self, throttle, brake, steer):
