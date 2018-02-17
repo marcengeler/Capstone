@@ -154,12 +154,12 @@ class TLDetector(object):
             location and color
 
         Returns:
-            int: index of waypoint closes to the upcoming stop line for a traffic light (-1 if none exists)
+            int: index of waypoint closest to the upcoming stop line for a traffic light (-1 if none exists)
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
         light = None
-
+        closest_light = -1
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
         if(self.pose):
@@ -189,7 +189,7 @@ class TLDetector(object):
 
         if light:
             state = self.get_light_state(light)
-            return light_wp, state
+            return closest_light, state
         self.waypoints = None
         return -1, TrafficLight.UNKNOWN
 
