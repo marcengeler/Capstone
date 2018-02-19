@@ -171,8 +171,8 @@ class TLDetector(object):
         for i,stop_light_position in enumerate(stop_light_positions):
             # Initialize a Pose
             light_pose = Pose()
-            light_pose.pose.position.x = stop_light_position[0]
-            light_pose.pose.position.y = stop_light_position[1]
+            light_pose.position.x = stop_light_position[0]
+            light_pose.position.y = stop_light_position[1]
 
             # Initialize a Waypoint, which is closest to the traffic light
             light_waypoint = self.get_closest_waypoint(light_pose)
