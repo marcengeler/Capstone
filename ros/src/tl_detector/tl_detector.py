@@ -190,7 +190,6 @@ class TLDetector(object):
         if light:
             state = self.get_light_state(light)
             return closest_light, state
-        self.waypoints = None
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':
