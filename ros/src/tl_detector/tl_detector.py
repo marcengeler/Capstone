@@ -116,7 +116,7 @@ class TLDetector(object):
         # Search through all the waypoints to get the closes waypoint
         for i,waypoint in enumerate(self.waypoints):
             waypoint_x = waypoint.pose.pose.position.x
-            waypoint_y = waypoint.pose.pose.position.yaml
+            waypoint_y = waypoint.pose.pose.position.y
 
             dist_to_waypoint = math.sqrt((waypoint_x - x) ** 2 + (waypoint_y - y) ** 2)
 
