@@ -17,6 +17,11 @@ class Controller(object):
                                 mn = -1.0,
                                 mx = 1.0)
 
+        self.steer_control = PID(
+                                kp=1.0,
+                                ki=0.24,
+                                kd=0.0)
+
         self.steering_control = YawController(kwargs['wheel_base'], kwargs['steer_ratio'],
                                          kwargs['min_speed'], kwargs['max_lat_accel'],
                                          kwargs['max_steer_angle']
@@ -47,7 +52,8 @@ class Controller(object):
         
         throttle = self.throttle_control.step(velocity_margin, dt)
         steer = self.steering_control.get_steering(linear_velocity.x, angular_velocity.z, current_velocity.x)
-        
+        steer = self.steer_control.step(steer, dt)
+
         throttle = self.TP1_throttle.filt(throttle)
         
         if throttle < 0:
