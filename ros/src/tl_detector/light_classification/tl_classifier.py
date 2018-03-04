@@ -128,7 +128,7 @@ class TLClassifier(object):
 
         # Model index to TLD message
         self.index2msg = {0: TrafficLight.RED, 1: TrafficLight.GREEN, 2: TrafficLight.YELLOW}
-        self.msg2str = {TrafficLight.RED: 'RED', TrafficLight.GREEN: 'GREEN', TrafficLight.YELLOW: 'YELLOW'}
+        self.msg2str = {TrafficLight.RED: 'RED', TrafficLight.GREEN: 'GREEN', TrafficLight.YELLOW: 'YELLOW', TrafficLight.UNKNOWN: 'UNKNOWN'}
         self.index2color = {0: (255, 0, 0), 1: (0, 255, 0), 2: (255, 255, 0)}
 
         # TL publisher
