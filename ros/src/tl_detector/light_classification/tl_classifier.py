@@ -140,7 +140,7 @@ class TLClassifier(object):
         self.classification(cv2.cvtColor(np.zeros((32, 32), np.uint8), cv2.COLOR_GRAY2RGB))
 
     def tl2str(self, TrafficLightID):
-        return self.msg2str(TrafficLightID)
+        return self.msg2str[TrafficLightID]
 
     def get_classification(self, image):
         with Timer('get_classification'):
