@@ -20,7 +20,7 @@ class Timer:
         return self
     def __exit__(self, *args):
         message = '{} in {} seconds'.format(self.message, time.clock() - self.start)
-        rospy.loginfo(message)
+        #rospy.loginfo(message)
 
 # Function to load a graph from a protobuf file
 def _load_graph(graph_file, config, verbose = False):
@@ -155,8 +155,9 @@ class TLClassifier(object):
             left, right, top, bottom = box
             img_crop = image[top:bottom, left:right]
             traffic_light = cv2.resize(img_crop, (32, 32))
-
-            return self.classification(traffic_light)
+            color = self.classification(traffic_light)
+            rospy.loginfo('--------' + tl2str(color) + '--------' )
+            return color
 
     def detection(self, image):
         """ Traffic light detection """
