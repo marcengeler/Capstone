@@ -156,7 +156,7 @@ class TLClassifier(object):
             img_crop = image[top:bottom, left:right]
             traffic_light = cv2.resize(img_crop, (32, 32))
             color = self.classification(traffic_light)
-            rospy.loginfo('--------' + tl2str(color) + '--------' )
+            rospy.loginfo('--------' + self.tl2str(color) + '--------' )
             return color
 
     def detection(self, image):
