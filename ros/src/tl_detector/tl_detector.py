@@ -10,6 +10,7 @@ from light_classification.tl_classifier import TLClassifier
 import tf
 import cv2
 import yaml
+import math
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -54,8 +55,8 @@ class TLDetector(object):
     def pose_cb(self, msg):
         self.pose = msg
 
-    def waypoints_cb(self, waypoints):
-        self.waypoints = waypoints
+    def waypoints_cb(self, msg):
+        self.waypoints = msg.waypoints
 
     def traffic_cb(self, msg):
         self.lights = msg.lights
@@ -116,7 +117,7 @@ class TLDetector(object):
         # Search through all the waypoints to get the closes waypoint
         for i,waypoint in enumerate(self.waypoints):
             waypoint_x = waypoint.pose.pose.position.x
-            waypoint_y = waypoint.pose.pose.position.yaml
+            waypoint_y = waypoint.pose.pose.position.y
 
             dist_to_waypoint = math.sqrt((waypoint_x - x) ** 2 + (waypoint_y - y) ** 2)
 
@@ -161,7 +162,8 @@ class TLDetector(object):
         light = None
         closest_light = -1
         # List of positions that correspond to the line to stop in front of for a given intersection
-        stop_line_positions = self.config['stop_line_positions']
+        stop_light_positions = self.config['stop_line_positions']
+
         if(self.pose):
             car_position = self.get_closest_waypoint(self.pose.pose)
 
@@ -169,8 +171,8 @@ class TLDetector(object):
         for i,stop_light_position in enumerate(stop_light_positions):
             # Initialize a Pose
             light_pose = Pose()
-            light_pose.pose.position.x = stop_light_position[0]
-            light_pose.pose.position.y = stop_light_position[1]
+            light_pose.position.x = stop_light_position[0]
+            light_pose.position.y = stop_light_position[1]
 
             # Initialize a Waypoint, which is closest to the traffic light
             light_waypoint = self.get_closest_waypoint(light_pose)
