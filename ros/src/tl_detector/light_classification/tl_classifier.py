@@ -138,6 +138,8 @@ class TLClassifier(object):
         ## kick classification to preload models
         self.detection(cv2.cvtColor(np.zeros((600, 800), np.uint8), cv2.COLOR_GRAY2RGB))
         self.classification(cv2.cvtColor(np.zeros((32, 32), np.uint8), cv2.COLOR_GRAY2RGB))
+        self.img_counter = 0
+        self.current_color = TrafficLight.UNKNOWN
 
     def tl2str(self, TrafficLightID):
         return self.msg2str[TrafficLightID]
@@ -156,7 +158,12 @@ class TLClassifier(object):
             img_crop = image[top:bottom, left:right]
             traffic_light = cv2.resize(img_crop, (32, 32))
             color = self.classification(traffic_light)
-            rospy.loginfo('--------' + self.tl2str(color) + '--------' )
+            #print detected tl state
+            if color != self.current_color or (self.img_counter % 5) == 0:
+                rospy.loginfo('--------' + self.tl2str(color) + '--------' )
+            self.current_color = color
+            self.img_counter += 1
+
             return color
 
     def detection(self, image):
