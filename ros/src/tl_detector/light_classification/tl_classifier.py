@@ -139,6 +139,9 @@ class TLClassifier(object):
         self.detection(cv2.cvtColor(np.zeros((600, 800), np.uint8), cv2.COLOR_GRAY2RGB))
         self.classification(cv2.cvtColor(np.zeros((32, 32), np.uint8), cv2.COLOR_GRAY2RGB))
 
+    def tl2str(self, TrafficLightID)
+        self.msg2str(TrafficLightID)
+
     def get_classification(self, image):
         with Timer('get_classification'):
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -190,4 +193,4 @@ if __name__ == "__main__":
         img = cv2.imread(im)
         if not img is None:
             color = classifier.get_classification(img)
-            print (im, 'detected as', self.msg2str(color))
+            print (im, 'detected as', classifier.tl2str(color))
