@@ -128,8 +128,7 @@ class TLClassifier(object):
 
         # Model index to TLD message
         self.index2msg = {0: TrafficLight.RED, 1: TrafficLight.GREEN, 2: TrafficLight.YELLOW}
-        self.index2str = {TrafficLight.RED: 'RED', TrafficLight.GREEN: 'GREEN', 
-                          TrafficLight.YELLOW: 'YELLOW', TrafficLight.UNKNOWN: 'UNKNOWN'}
+        self.msg2str = {TrafficLight.RED: 'RED', TrafficLight.GREEN: 'GREEN', TrafficLight.YELLOW: 'YELLOW'}
         self.index2color = {0: (255, 0, 0), 1: (0, 255, 0), 2: (255, 255, 0)}
 
         # TL publisher
@@ -191,4 +190,4 @@ if __name__ == "__main__":
         img = cv2.imread(im)
         if not img is None:
             color = classifier.get_classification(img)
-            print (im, 'detected as', index2str(color))
+            print (im, 'detected as', self.msg2str(color))
