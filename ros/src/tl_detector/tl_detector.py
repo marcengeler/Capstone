@@ -161,6 +161,10 @@ class TLDetector(object):
             int: distance in meters between two waypoint index
 
         """
+        if(wp1_idx < 0 or wp1_idx > len(self.waypoints) or
+           wp2_idx < 0 or wp2_idx > len(self.waypoints)):
+           return -1
+
         wp1 = self.waypoints[wp1_idx].pose.pose.position
         wp2 = self.waypoints[wp2_idx].pose.pose.position
         dist = math.sqrt((wp1.x - wp2.x) ** 2 + (wp1.y - wp2.y) ** 2)
