@@ -14,6 +14,9 @@ import math
 
 STATE_COUNT_THRESHOLD = 3
 
+#Traffic Light detection range
+TL_DETECTION_RANGE = 50
+
 class TLDetector(object):
     def __init__(self):
         rospy.init_node('tl_detector')
@@ -182,6 +185,7 @@ class TLDetector(object):
         light = None
         closest_light = -1
         car_position = -1
+        distance_to_tl = -1
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_light_positions = self.config['stop_line_positions']
 
@@ -209,12 +213,13 @@ class TLDetector(object):
 
         if car_position and light:
             waypoint_num_to_light = abs(car_position - closest_light)
-            dist = self.get_distance(car_position, closest_light)
-            rospy.loginfo("-dist to closest TL- " + str(dist))
-
+            distance_to_tl = self.get_distance(car_position, closest_light)
 
         if light:
-            state = self.get_light_state(light)
+            state = TrafficLight.UNKNOWN
+            if (distance_to_tl < TL_DETECTION_RANGE):
+                state = self.get_light_state(light)
+                rospy.loginfo("-dist to closest TL- " + str(distance_to_tl))
             return closest_light, state
         return -1, TrafficLight.UNKNOWN
 
