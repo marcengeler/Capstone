@@ -150,6 +150,22 @@ class TLDetector(object):
         #Get classification
         return self.light_classifier.get_classification(cv_image)
 
+    def get_distance(self, wp1_idx, wp2_idx):
+        """Determines the distance between two points
+
+        Args:
+            wp1_idx (waypoint index): waypoint index 1
+            wp2_idx (waypoint index): waypoint index 2
+
+        Returns:
+            int: distance in meters between two waypoint index
+
+        """
+        wp1 = self.waypoints[wp1_idx].pose.pose.position
+        wp2 = self.waypoints[wp2_idx].pose.pose.position
+        dist = math.sqrt((wp1.x - wp2.x) ** 2 + (wp1.y - wp2.y) ** 2)
+        return dist
+
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
             location and color
@@ -189,6 +205,9 @@ class TLDetector(object):
 
         if car_position and light:
             waypoint_num_to_light = abs(car_position - closest_light)
+            dist = self.get_distance(car_position, closest_light)
+            rospy.loginfo("-dist to closest TL- " + str(dist))
+
 
         if light:
             state = self.get_light_state(light)
