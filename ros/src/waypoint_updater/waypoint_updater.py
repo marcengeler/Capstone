@@ -20,8 +20,9 @@ current status in `/vehicle/traffic_lights` message. You can use this message to
 as well as to verify your TL classifier.
 '''
 
-LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-MAX_SPEED = 8.3 # in M/s corresponds to 30 kph
+LOOKAHEAD_WPS = 50 # Number of waypoints we will publish. You can change this number
+MAX_SPEED = 10 # in M/s corresponds to 30 kph
+PUBLISH_RATE = 20
 
 class WaypointUpdater(object):
     def __init__(self):
@@ -31,18 +32,21 @@ class WaypointUpdater(object):
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
         rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb)
         rospy.Subscriber('/obstacle_waypoint', Int32, self.obstacle_cb)
-        
+
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
         self.current_pose = None
         self.waypoints = None
-        
-        rospy.spin()
+
+        # Launch periodic publishing into /final_waypoints
+        rate = rospy.Rate(PUBLISH_RATE)
+        while not rospy.is_shutdown():
+            self.send_final_waypoints()
+            rate.sleep()
 
     def pose_cb(self, msg):
         # Parse Position Update
         self.current_pose = msg.pose
-        self.send_final_waypoints()
 
     def waypoints_cb(self, msg):
         # Initialize the waypoints
@@ -70,7 +74,7 @@ class WaypointUpdater(object):
             dist += dl(waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
             wp1 = i
         return dist
-        
+
     def get_circular_waypoints(self, startIT, endIT):
         if endIT > len(self.waypoints):
             ret_waypoints = self.waypoints[startIT:] + self.waypoints[:len(self.waypoints) - endIT]
@@ -100,7 +104,7 @@ class WaypointUpdater(object):
 
 
     def send_final_waypoints(self):
-        if self.waypoints is None:
+        if self.waypoints is None or self.current_pose is None:
             return
 
         pos = self.find_closest_waypoint()
@@ -108,10 +112,10 @@ class WaypointUpdater(object):
         rospy.loginfo(pos)
 
         waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
-        
+
         for (i,waypoint) in enumerate(waypoints):
             self.set_waypoint_velocity(waypoints, i, MAX_SPEED)
-        
+
         lane = Lane()
         lane.waypoints = waypoints
         lane.header.frame_id = '/world'
