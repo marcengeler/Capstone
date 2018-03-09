@@ -37,7 +37,6 @@ class WaypointUpdater(object):
 
         self.current_pose = None
         self.waypoints = None
-
         # Launch periodic publishing into /final_waypoints
         rate = rospy.Rate(PUBLISH_RATE)
         while not rospy.is_shutdown():
@@ -77,7 +76,7 @@ class WaypointUpdater(object):
 
     def get_circular_waypoints(self, startIT, endIT):
         if endIT > len(self.waypoints):
-            ret_waypoints = self.waypoints[startIT:] + self.waypoints[:len(self.waypoints) - endIT]
+            ret_waypoints = self.waypoints[startIT:] + self.waypoints[:endIT - startIT]
         else:
             ret_waypoints = self.waypoints[startIT:endIT]
         return ret_waypoints
@@ -97,9 +96,6 @@ class WaypointUpdater(object):
             elif dist < min_dist:
                 min_dist = dist
                 min_loc = i
-                min_found = True
-            elif min_found:
-                break
         return min_loc
 
 
@@ -108,9 +104,6 @@ class WaypointUpdater(object):
             return
 
         pos = self.find_closest_waypoint()
-        rospy.loginfo("####")
-        rospy.loginfo(pos)
-
         waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
 
         for (i,waypoint) in enumerate(waypoints):
@@ -121,7 +114,6 @@ class WaypointUpdater(object):
         lane.header.frame_id = '/world'
         lane.header.stamp = rospy.Time(0)
         self.final_waypoints_pub.publish(lane)
-
 
 if __name__ == '__main__':
     try:
