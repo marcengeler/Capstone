@@ -14,6 +14,9 @@ import math
 
 STATE_COUNT_THRESHOLD = 3
 
+#Traffic Light detection range
+TL_DETECTION_RANGE = 50
+
 class TLDetector(object):
     def __init__(self):
         rospy.init_node('tl_detector')
@@ -150,6 +153,26 @@ class TLDetector(object):
         #Get classification
         return self.light_classifier.get_classification(cv_image)
 
+    def get_distance(self, wp1_idx, wp2_idx):
+        """Determines the distance between two points
+
+        Args:
+            wp1_idx (waypoint index): waypoint index 1
+            wp2_idx (waypoint index): waypoint index 2
+
+        Returns:
+            int: distance in meters between two waypoint index
+
+        """
+        if(wp1_idx < 0 or wp1_idx > len(self.waypoints) or
+           wp2_idx < 0 or wp2_idx > len(self.waypoints)):
+           return -1
+
+        wp1 = self.waypoints[wp1_idx].pose.pose.position
+        wp2 = self.waypoints[wp2_idx].pose.pose.position
+        dist = math.sqrt((wp1.x - wp2.x) ** 2 + (wp1.y - wp2.y) ** 2)
+        return dist
+
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
             location and color
@@ -161,6 +184,8 @@ class TLDetector(object):
         """
         light = None
         closest_light = -1
+        car_position = -1
+        distance_to_tl = -1
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_light_positions = self.config['stop_line_positions']
 
@@ -188,11 +213,14 @@ class TLDetector(object):
 
         if car_position and light:
             waypoint_num_to_light = abs(car_position - closest_light)
+            distance_to_tl = self.get_distance(car_position, closest_light)
 
         if light:
-            state = self.get_light_state(light)
+            state = TrafficLight.UNKNOWN
+            if (distance_to_tl < TL_DETECTION_RANGE):
+                state = self.get_light_state(light)
+                rospy.loginfo("-dist to closest TL- " + str(distance_to_tl))
             return closest_light, state
-        self.waypoints = None
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':
