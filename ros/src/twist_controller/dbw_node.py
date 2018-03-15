@@ -31,7 +31,7 @@ that we have created in the `__init__` function.
 
 '''
 # 8.3 corresponds to 30 kph
-MAX_SPEED = 8.3
+MAX_SPEED = 4.2 #8.3 m/s
 
 class DBWNode(object):
     def __init__(self):
