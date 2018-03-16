@@ -20,7 +20,7 @@ class Timer:
         return self
     def __exit__(self, *args):
         message = '{} in {} seconds'.format(self.message, time.clock() - self.start)
-        #rospy.loginfo(message)
+        rospy.loginfo(message)
 
 # Function to load a graph from a protobuf file
 def _load_graph(graph_file, config, verbose = False):
