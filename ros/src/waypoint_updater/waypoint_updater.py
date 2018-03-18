@@ -127,6 +127,8 @@ class WaypointUpdater(object):
         # Parse Position Update
         self.current_pose = msg.pose
 
+        #self.send_final_waypoints()
+
     def waypoints_cb(self, msg):
         # Initialize the waypoints
         if self.waypoints is None:
@@ -197,8 +199,12 @@ class WaypointUpdater(object):
 
     def get_circular_waypoints(self, startIT, endIT):
         if endIT > len(self.waypoints):
+
+            #rospy.logwarn("startIT ="+str(startIT)+" ,endIT="+str(endIT)+" ,len(self.waypoints)="+str(len(self.waypoints))+" ,len(self.waypoints) - endIT="+str(len(self.waypoints) - endIT)+" ,endIT - startIT="+str(endIT - startIT))
+
             ret_waypoints = self.waypoints[startIT:] + self.waypoints[:endIT - startIT]
         else:
+            #rospy.logwarn("startIT ="+str(startIT)+" ,endIT="+str(endIT)+" ,len(self.waypoints)="+str(len(self.waypoints))+" ,len(self.waypoints) - endIT="+str(len(self.waypoints) - endIT)+" ,endIT - startIT="+str(endIT - startIT))
             ret_waypoints = self.waypoints[startIT:endIT]
         return ret_waypoints
 
@@ -279,9 +285,13 @@ class WaypointUpdater(object):
         if debugging:
             rospy.loginfo("New next wp [%d] -> (%.1f,%.1f) after searching %d points in %fs", wp, dist * math.cos(yaw), dist * math.sin(yaw), i, time.time()-t)
 
+
         if wp is None:
             rospy.logwarn("Waypoint updater did not find a valid waypoint")
             return False
+
+
+
 
         self.next_waypoint = wp
         #rospy.logwarn("Waypoint_updater.py: _update_next_waypoint(): self.next_waypoint="+str(self.next_waypoint))
@@ -295,6 +305,7 @@ class WaypointUpdater(object):
             return
 
         pos = self.find_closest_waypoint()
+
         waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
 
         #for waypoint in waypoints:
@@ -306,7 +317,30 @@ class WaypointUpdater(object):
         waypoint_idx = [idx % num_base_wp for idx in range(pos,pos+LOOKAHEAD_WPS)]
         #for i in enumerate(waypoint_idx):
         rospy.logwarn("waypoint_idx["+str(min(waypoint_idx))+" : "+str(max(waypoint_idx))+"]")
+
+
+        #rospy.loginfo("####")
+        #rospy.loginfo(pos)
+        #272
+        #rospy.logwarn("pos=" +str(pos))
+
+        waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
+        #final_waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
         
+        # 50
+        #rospy.logwarn("length of waypoints =" +str(len(waypoints)))
+
+        #for waypoint in waypoints:
+        #    rospy.logwarn("waypoint.twist.twist.linear.x =" +str(waypoint.twist.twist.linear.x))
+
+        #10902
+        num_base_wp = len(self.base_waypoints) 
+        #rospy.logwarn("waypoint_updater.py: send_final_waypoints(): num_base_wp=" + str(num_base_wp))
+        waypoint_idx = [idx % num_base_wp for idx in range(pos,pos+LOOKAHEAD_WPS)]
+        #for i in enumerate(waypoint_idx):
+        rospy.logwarn("waypoint_idx["+str(min(waypoint_idx))+" : "+str(max(waypoint_idx))+"]")
+        
+
         final_waypoints = [self.base_waypoints[wp] for wp in waypoint_idx]
         if self.red_light_waypoint != None:
             rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
@@ -326,6 +360,7 @@ class WaypointUpdater(object):
             #self.set_waypoint_velocity(waypoints, i, MAX_SPEED)
             #v = self.get_waypoint_velocity(waypoints, i)
             #rospy.logwarn("i="+str(i)+" ,v="+str(v))
+
 
         lane = Lane()
         #waypoint_msg = Lane()

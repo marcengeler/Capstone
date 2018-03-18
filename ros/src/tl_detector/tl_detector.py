@@ -219,7 +219,9 @@ class TLDetector(object):
             state = TrafficLight.UNKNOWN
             if (distance_to_tl < TL_DETECTION_RANGE):
                 state = self.get_light_state(light)
-		rospy.loginfo("---------"+str(state)+"-------------")
+
+                #rospy.loginfo("---------"+str(state)+"-------------")
+
                 #rospy.loginfo("-dist to closest TL- " + str(distance_to_tl))
             return closest_light, state
         return -1, TrafficLight.UNKNOWN
