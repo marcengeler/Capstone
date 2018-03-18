@@ -68,7 +68,7 @@ class DBWNode(object):
 
         self.twist = None
         self.current_velocity = None
-        self.dbw_enabled = None
+        self.dbw_enabled = False
 
         self.loop()
 
@@ -77,11 +77,28 @@ class DBWNode(object):
         while not rospy.is_shutdown():
             if self.twist is None or self.current_velocity is None:
                 continue
+
+            current_linear_velocity = self.current_velocity.twist.linear.x
+
             
-            throttle, brake, steering = self.controller.control(linear_velocity = self.twist.twist.linear,
-                                                                angular_velocity = self.twist.twist.angular,
-                                                                current_velocity = self.current_velocity.twist.linear,
-                                                                dbw_state = self.dbw_enabled)
+
+            #throttle, brake, steering = self.controller.control(linear_velocity=self.twist.twist.linear, angular_velocity=self.twist.twist.angular, current_velocity=self.current_velocity.twist.linear, dbw_state=self.dbw_enabled)
+
+            #prev_target_linear_velocity = target_linear_velocity
+
+            target_linear_velocity = self.twist.twist.linear.x
+
+            #if target_linear_velocity != prev_target_linear_velocity:
+            #    rospy.logwarn("dbw_node.py: loop(): new target v= " + str(target_linear_velocity))
+
+            target_angular_velocity = self.twist.twist.angular.z
+            #cross_track_error = cte_calculator.get_cross_track_error(self.final_waypoints, self.current_pose)
+
+            throttle, brake, steering = self.controller.control(
+                target_linear_velocity=target_linear_velocity,target_angular_velocity=target_angular_velocity,current_linear_velocity=current_linear_velocity, 
+                #cross_track_error, duration_in_seconds
+                dbw_state=self.dbw_enabled)
+
             if self.dbw_enabled:
                 self.publish(throttle, brake, steering)
             rate.sleep()
@@ -102,10 +119,15 @@ class DBWNode(object):
         bcmd.enable = True
         bcmd.pedal_cmd_type = BrakeCmd.CMD_TORQUE
         bcmd.pedal_cmd = brake
+        #if brake > 0.0:
+        #    rospy.logwarn("dbw_node.py: publish(): bcmd.pedal_cmd = brake = " + str(brake))
         self.brake_pub.publish(bcmd)
 
     def dbw_enabled_cb(self, msg):
-        self.dbw_enabled = msg
+        #self.dbw_enabled = msg
+        rospy.logwarn("DBW_ENABLED %s" % msg)
+        #self.is_dbw_enabled = message.data
+        self.dbw_enabled = msg.data
 
     def current_velocity_cb(self, msg):
         self.current_velocity = msg
