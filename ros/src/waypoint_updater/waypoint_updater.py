@@ -4,7 +4,7 @@ import rospy
 from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import Lane, Waypoint
 from std_msgs.msg import Int32
-
+import time
 import math
 
 '''
@@ -25,7 +25,7 @@ MAX_SPEED = 30 #10 #8.3  # in M/s corresponds to 30 kph
 
 PUBLISH_RATE = 20      # Publishing rate (Hz)
 
-
+max_local_distance = 20.0      # Max waypoint distance we admit for a local minimum (m)
 publish_on_light_change = True # Force publishing if next traffic light changes
 debugging = True               # Set to False for release (not too verbose, but it saves some computation power)
 
@@ -53,8 +53,10 @@ class WaypointUpdater(object):
         # Parameters
         self.stop_on_red = rospy.get_param('~stop_on_red', True)      # Enable/disable stopping on red lights
         self.force_stop_on_last_waypoint = rospy.get_param('~force_stop_on_last_waypoint', True)   # Enable/disable stopping on last waypoint
-        self.accel = rospy.get_param('~target_brake_accel', -1.)     # Target brake acceleration
-        self.stop_distance = rospy.get_param('~stop_distance', 5.0)  # Distance (m) where car will stop before red light
+        #self.accel = rospy.get_param('~target_brake_accel', -1.)     # Target brake acceleration
+        self.accel = rospy.get_param('~target_brake_accel', -2.)     # Target brake acceleration
+        #self.stop_distance = rospy.get_param('~stop_distance', 5.0)  # Distance (m) where car will stop before red light
+        self.stop_distance = rospy.get_param('~stop_distance', 10.0)  # Distance (m) where car will stop before red light
 
 
         # Launch periodic publishing into /final_waypoints
@@ -85,8 +87,8 @@ class WaypointUpdater(object):
         # For initial phase ignore traffic lights, later on flag traffic light
         prev_red_light_waypoint = self.red_light_waypoint
         self.red_light_waypoint = msg.data if msg.data >= 0 else None
-        if self.red_light_waypoint != None:
-            rospy.logwarn("self.red_light_waypoint: %s", str(self.red_light_waypoint))
+        #if self.red_light_waypoint != None:
+        #    rospy.logwarn("self.red_light_waypoint: %s", str(self.red_light_waypoint))
 
 
         if prev_red_light_waypoint != self.red_light_waypoint:
@@ -108,7 +110,7 @@ class WaypointUpdater(object):
 
     def set_waypoint_velocity(self, waypoints, waypoint, velocity):
         waypoints[waypoint].twist.twist.linear.x = velocity
-        rospy.logwarn("velocity="+str(velocity))
+        #rospy.logwarn("velocity="+str(velocity))
 
     def decelerate(self, waypoints, stop_index, stop_distance):
         """
@@ -247,8 +249,16 @@ class WaypointUpdater(object):
         if self.waypoints is None or self.current_pose is None:
             return
 
-        pos = self.find_closest_waypoint()
+        if self._update_next_waypoint():
+            pos1 = self.next_waypoint
+            #rospy.logwarn("_update_next_waypoint(): self.next_waypoint=pos1=" +str(pos1))
+        
+        pos2 = self.find_closest_waypoint()
+        if pos2 != pos1:
+            rospy.logwarn("find_closest_waypoint() != _update_next_waypoint(): pos1="+str(pos1)+", pos2=" +str(pos2))
 
+        #pos = pos1
+        pos = pos2
         #rospy.loginfo("####")
         #rospy.loginfo(pos)
         #272
@@ -273,11 +283,11 @@ class WaypointUpdater(object):
 
         
         final_waypoints = [self.base_waypoints[wp] for wp in waypoint_idx]
-        if self.red_light_waypoint != None and min(waypoint_idx) <= self.red_light_waypoint and max(waypoint_idx) >= self.red_light_waypoint:
-            #rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
+        if self.red_light_waypoint != None :
+            #and min(waypoint_idx) <= self.red_light_waypoint and max(waypoint_idx) >= self.red_light_waypoint:
+            rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
             red_idx = waypoint_idx.index(self.red_light_waypoint)
             #rospy.logwarn("red_idx=:"+str(red_idx))
-
             self.decelerate(final_waypoints, red_idx, self.stop_distance)
         else: # self.red_light_waypoint is out of waypoint_idx range or not detected
             red_idx = None
