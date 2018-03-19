@@ -29,6 +29,7 @@ max_local_distance = 20.0      # Max waypoint distance we admit for a local mini
 publish_on_light_change = True # Force publishing if next traffic light changes
 debugging = True               # Set to False for release (not too verbose, but it saves some computation power)
 
+
 class WaypointUpdater(object):
     def __init__(self):
         rospy.init_node('waypoint_updater')
@@ -46,8 +47,10 @@ class WaypointUpdater(object):
         self.next_waypoint = None # Next waypoint in car direction
         self.current_pose = None
         self.waypoints = None
-
+        self.prev_waypoint_min = None
+        
         self.red_light_waypoint = None # Waypoint index of the next red light
+        self.prev_red_light_waypoint = None
         #self.msg_seq = 0 # Sequence number of /final_waypoints message
         
         # Parameters
@@ -278,14 +281,18 @@ class WaypointUpdater(object):
         #rospy.logwarn("waypoint_updater.py: send_final_waypoints(): num_base_wp=" + str(num_base_wp))
         waypoint_idx = [idx % num_base_wp for idx in range(pos,pos+LOOKAHEAD_WPS)]
         #for i in enumerate(waypoint_idx):
-        rospy.logwarn("waypoint_idx["+str(min(waypoint_idx))+" : "+str(max(waypoint_idx))+"]")
+        if self.prev_waypoint_min != min(waypoint_idx):
+            self.prev_waypoint_min = min(waypoint_idx)
+            rospy.logwarn("waypoint_idx["+str(min(waypoint_idx))+" : "+str(max(waypoint_idx))+"]")
 
 
         
         final_waypoints = [self.base_waypoints[wp] for wp in waypoint_idx]
         if self.red_light_waypoint != None :
             #and min(waypoint_idx) <= self.red_light_waypoint and max(waypoint_idx) >= self.red_light_waypoint:
-            rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
+            if self.prev_red_light_waypoint != self.red_light_waypoint:
+                self.prev_red_light_waypoint = self.red_light_waypoint
+                rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
             red_idx = waypoint_idx.index(self.red_light_waypoint)
             #rospy.logwarn("red_idx=:"+str(red_idx))
             self.decelerate(final_waypoints, red_idx, self.stop_distance)
