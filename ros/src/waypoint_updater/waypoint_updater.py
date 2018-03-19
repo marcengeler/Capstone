@@ -85,7 +85,8 @@ class WaypointUpdater(object):
         # For initial phase ignore traffic lights, later on flag traffic light
         prev_red_light_waypoint = self.red_light_waypoint
         self.red_light_waypoint = msg.data if msg.data >= 0 else None
-        rospy.logwarn("self.red_light_waypoint: %s", str(self.red_light_waypoint))
+        if self.red_light_waypoint != None:
+            rospy.logwarn("self.red_light_waypoint: %s", str(self.red_light_waypoint))
 
 
         if prev_red_light_waypoint != self.red_light_waypoint:
@@ -272,13 +273,13 @@ class WaypointUpdater(object):
 
         
         final_waypoints = [self.base_waypoints[wp] for wp in waypoint_idx]
-        if self.red_light_waypoint != None:
-            rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
+        if self.red_light_waypoint != None and min(waypoint_idx) <= self.red_light_waypoint and max(waypoint_idx) >= self.red_light_waypoint:
+            #rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
             red_idx = waypoint_idx.index(self.red_light_waypoint)
             #rospy.logwarn("red_idx=:"+str(red_idx))
 
             self.decelerate(final_waypoints, red_idx, self.stop_distance)
-        else:
+        else: # self.red_light_waypoint is out of waypoint_idx range or not detected
             red_idx = None
             for (i, waypoint) in enumerate(final_waypoints):
                 self.set_waypoint_velocity(final_waypoints, i, MAX_SPEED)
