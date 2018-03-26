@@ -73,7 +73,7 @@ class Controller(object):
         velocity_correction = self.linear_pid.step(linear_velocity_error, 3.0 #duration_in_seconds
             )
 
-        throttle = velocity_correction
+        throttle_ = velocity_correction
         # Ignore throttle_ for the moment
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
