@@ -21,7 +21,7 @@ as well as to verify your TL classifier.
 '''
 
 LOOKAHEAD_WPS = 200  # Number of waypoints we will publish. You can change this number
-MAX_SPEED = 30 #10 #8.3  # in M/s corresponds to 30 kph
+MAX_SPEED = 8.3  # in M/s corresponds to 30 kph
 
 PUBLISH_RATE = 20      # Publishing rate (Hz)
 
