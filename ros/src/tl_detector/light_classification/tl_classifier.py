@@ -201,4 +201,5 @@ if __name__ == "__main__":
         img = cv2.imread(im)
         if not img is None:
             color = classifier.get_classification(img)
+	    print("--------------",color,"-------------------")
             print (im, 'detected as', classifier.tl2str(color))
