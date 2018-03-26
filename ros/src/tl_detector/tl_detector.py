@@ -19,12 +19,12 @@ import time
 #STATE_COUNT_THRESHOLD = 3
 STATE_COUNT_THRESHOLD = 1
 #Traffic Light detection range
-MEASURE_PERFORMANCE = True
+MEASURE_PERFORMANCE = False #True
 TL_DETECTION_RANGE = 50
 ProcessingTimeSum = 0
 ProcessingIterations = 0
 
-REDUCE_FREQ = True
+REDUCE_FREQ = False #True
 
 class TLDetector(object):
     def __init__(self):
