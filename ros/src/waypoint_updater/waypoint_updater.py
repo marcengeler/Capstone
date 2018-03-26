@@ -157,84 +157,14 @@ class WaypointUpdater(object):
                 min_dist = dist
                 min_loc = i
         return min_loc
-
-    def _update_next_waypoint(self):
-        """
-        Update next_waypoint based on base_waypoints and current_pose.
-        @return True if a valid waypoint has been updated, False otherwise
-        """
-        if not self.base_waypoints:
-            return False
-
-        if not self.current_pose:
-            return False
-
-        # Get ego car variables
-        ego_x = self.current_pose.position.x
-        ego_y = self.current_pose.position.y
-        ego_theta = math.atan2(self.current_pose.orientation.y, self.current_pose.orientation.x)
-
-        # If we do have a next_waypoint, we start looking from it, and we stop looking
-        # as soon as we get a local minimum. Otherwise we do a full search across the whole track
-        t = time.time()
-        wp = None
-        yaw = 0
-        dist = 1000000 # Long number
-        if self.next_waypoint:
-            idx_offset = self.next_waypoint
-            full_search = False
-        else:
-            idx_offset = 0
-            full_search = True
-        num_base_wp = len(self.base_waypoints)
-
-        for i in range(num_base_wp):
-            idx = (i + idx_offset)%(num_base_wp)
-            wp_x = self.base_waypoints[idx].pose.pose.position.x
-            wp_y = self.base_waypoints[idx].pose.pose.position.y
-            wp_d = math.sqrt((ego_x - wp_x)**2 + (ego_y - wp_y)**2)
-
-            if wp_d < dist:
-                dist = wp_d
-                wp = idx
-                if debugging:
-                    # Angle betwee car heading and waypoint heading
-                    yaw = math.atan2(wp_y - ego_y, wp_x - ego_x) - ego_theta
-            elif not full_search:
-                # Local minimum. If the waypoint makes sense, just use it and break
-                if dist < max_local_distance:
-                    break; # We found a point
-                else:
-                    # We seem to have lost track. We search again
-                    rospy.logwarn("Waypoint updater lost track (local min at %.1f m after %d waypoints). Going back to full search.", dist, i+1)
-                    full_search = True
-
-        if debugging:
-            rospy.loginfo("New next wp [%d] -> (%.1f,%.1f) after searching %d points in %fs", wp, dist * math.cos(yaw), dist * math.sin(yaw), i, time.time()-t)
-
-        if wp is None:
-            rospy.logwarn("Waypoint updater did not find a valid waypoint")
-            return False
-
-        self.next_waypoint = wp
-
-        return True
-
         
     def send_final_waypoints(self):
         if self.waypoints is None or self.current_pose is None:
             return
 
-        if self._update_next_waypoint():
-            pos1 = self.next_waypoint
-        
-        pos2 = self.find_closest_waypoint()
-        if pos2 != pos1:
-            rospy.logwarn("find_closest_waypoint() != _update_next_waypoint(): pos1="+str(pos1)+", pos2=" +str(pos2))
+        pos = self.find_closest_waypoint()
 
-        pos = pos1
-
-        final_waypoints = self.get_circular_waypoints(pos - 20, pos + LOOKAHEAD_WPS)
+        final_waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
 
         num_base_wp = len(self.base_waypoints)
         waypoint_idx = [idx % num_base_wp for idx in range(pos,pos+LOOKAHEAD_WPS)]
