@@ -145,7 +145,7 @@ class WaypointUpdater(object):
 
     def find_closest_waypoint(self):
         min_dist = None
-        min_found = False
+        min_loc = None
         for (i, waypoint) in enumerate(self.waypoints):
             waypoint_x = waypoint.pose.pose.position.x
             waypoint_y = waypoint.pose.pose.position.y
