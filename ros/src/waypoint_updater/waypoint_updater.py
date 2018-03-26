@@ -234,7 +234,7 @@ class WaypointUpdater(object):
 
         pos = pos1
 
-        final_waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
+        final_waypoints = self.get_circular_waypoints(pos - 20, pos + LOOKAHEAD_WPS)
 
         num_base_wp = len(self.base_waypoints)
         waypoint_idx = [idx % num_base_wp for idx in range(pos,pos+LOOKAHEAD_WPS)]
