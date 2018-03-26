@@ -137,9 +137,11 @@ class WaypointUpdater(object):
     def get_circular_waypoints(self, startIT, endIT):
         if endIT > len(self.waypoints):
             ret_waypoints = self.waypoints[startIT:] + self.waypoints[:endIT - startIT]
+            indices = range(startIT, len(self.waypoints)) + range(0, endIT - startIT + 1)
         else:
             ret_waypoints = self.waypoints[startIT:endIT]
-        return ret_waypoints
+            indices = range(startIT, endIT + 1)
+        return ret_waypoints, indices
 
     def find_closest_waypoint(self):
         min_dist = None
@@ -164,10 +166,7 @@ class WaypointUpdater(object):
 
         pos = self.find_closest_waypoint()
 
-        final_waypoints = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
-
-        num_base_wp = len(self.base_waypoints)
-        waypoint_idx = [idx % num_base_wp for idx in range(pos,pos+LOOKAHEAD_WPS)]
+        final_waypoints, waypoint_idx = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
 
         if self.red_light_waypoint != None :
             if self.prev_red_light_waypoint != self.red_light_waypoint:
