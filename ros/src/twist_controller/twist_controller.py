@@ -16,6 +16,12 @@ class Controller(object):
                                 kd = 1.0,
                                 mn = -1.0,
                                 mx = 1.0)
+        self.linear_pid = PID(
+                                kp=0.8,
+                                ki=0,
+                                kd=0.05,
+                                mn=self.decel_limit,
+                                mx=0.5 * self.accel_limit)
 
         self.steer_control = PID(
                                 kp=1.0,
@@ -32,7 +38,7 @@ class Controller(object):
         self.accel_limit = kwargs['accel_limit']
         self.decel_limit = kwargs['decel_limit']
         self.TP1_throttle = LowPassFilter(0.5, 0.1)
-        self.linear_pid = PID(kp=0.8, ki=0, kd=0.05, mn=self.decel_limit, mx=0.5 * self.accel_limit)
+
 
     def control(self, *args, **kwargs):
         linear_velocity = kwargs['target_linear_velocity']
@@ -51,7 +57,7 @@ class Controller(object):
 
         # Incorporate Acceleration and Deceleration Limits
         velocity_margin = min(velocity_margin, self.accel_limit * dt)
-        velocity_margin = max(velocity_margin, self.decel_limit * dt)
+        velocity_margin = max(velocity_margin, -self.decel_limit * dt)
 
         # Calculate Throttle Value with controller.
         throttle = self.throttle_control.step(velocity_margin, dt)
@@ -67,8 +73,8 @@ class Controller(object):
         velocity_correction = self.linear_pid.step(linear_velocity_error, 3.0 #duration_in_seconds
             )
 
-        throttle_ = velocity_correction
-        # Ignore throttle_2 for the moment
+        throttle = velocity_correction
+        # Ignore throttle_ for the moment
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
         if throttle < 0:
