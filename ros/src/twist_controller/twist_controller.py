@@ -53,20 +53,13 @@ class Controller(object):
             
         dt = rospy.get_time() - self.time
 
-        velocity_margin = min(linear_velocity, self.max_vel) - current_velocity
-
-        # Incorporate Acceleration and Deceleration Limits
-        velocity_margin = min(velocity_margin, self.accel_limit * dt)
-        velocity_margin = max(velocity_margin, -self.decel_limit * dt)
+        velocity_margin = linear_velocity - current_velocity
 
         # Calculate Throttle Value with controller.
         throttle = self.throttle_control.step(velocity_margin, dt)
 
         steer = self.steering_control.get_steering(linear_velocity, angular_velocity, current_velocity)
         steer = self.steer_control.step(steer, dt)
-
-        # Apply a TP1 Filter
-        throttle = self.TP1_throttle.filt(throttle)
 
         linear_velocity_error = linear_velocity - current_velocity
 
