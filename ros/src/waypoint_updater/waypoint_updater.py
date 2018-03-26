@@ -176,7 +176,7 @@ class WaypointUpdater(object):
                 red_idx = waypoint_idx.index(self.red_light_waypoint)
             except:
                 red_idx = 0
-                rospy.loginfo("Red Light Not in Index" + self.red_light_waypoint + " " + waypoint_idx)
+                rospy.loginfo("Red Light Not in Index" + str(self.red_light_waypoint) + " " + str(waypoint_idx))
             self.decelerate(final_waypoints, red_idx, self.stop_distance)
         else:
             red_idx = None
