@@ -53,11 +53,6 @@ class Controller(object):
             
         dt = rospy.get_time() - self.time
 
-        velocity_margin = linear_velocity - current_velocity
-
-        # Calculate Throttle Value with controller.
-        throttle = self.throttle_control.step(velocity_margin, dt)
-
         steer = self.steering_control.get_steering(linear_velocity, angular_velocity, current_velocity)
         steer = self.steer_control.step(steer, dt)
 
@@ -66,8 +61,7 @@ class Controller(object):
         velocity_correction = self.linear_pid.step(linear_velocity_error, 3.0 #duration_in_seconds
             )
 
-        throttle_ = velocity_correction
-        # Ignore throttle_ for the moment
+        throttle = velocity_correction
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
         if throttle < 0:
