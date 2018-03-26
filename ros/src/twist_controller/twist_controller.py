@@ -10,34 +10,34 @@ ONE_MPH = 0.44704
 
 class Controller(object):
     def __init__(self, *args, **kwargs):
-        self.throttle_control = PID(
-                                kp = 3.0,
-                                ki = 2.4,
-                                kd = 1.0,
-                                mn = -1.0,
-                                mx = 1.0)
-        self.linear_pid = PID(
-                                kp=0.8,
-                                ki=0,
-                                kd=0.05,
-                                mn=self.decel_limit,
-                                mx=0.5 * self.accel_limit)
-
-        self.steer_control = PID(
-                                kp=1.0,
-                                ki=0.0,
-                                kd=0.05)
-
-        self.steering_control = YawController(kwargs['wheel_base'], kwargs['steer_ratio'],
-                                         kwargs['min_speed'], kwargs['max_lat_accel'],
-                                         kwargs['max_steer_angle']
-                                         )
-                                         
         self.time = None
         self.max_vel = kwargs['max_vel']
         self.accel_limit = kwargs['accel_limit']
         self.decel_limit = kwargs['decel_limit']
         self.TP1_throttle = LowPassFilter(0.5, 0.1)
+
+        self.throttle_control = PID(
+            kp=3.0,
+            ki=2.4,
+            kd=1.0,
+            mn=-1.0,
+            mx=1.0)
+        self.linear_pid = PID(
+            kp=0.8,
+            ki=0,
+            kd=0.05,
+            mn=self.decel_limit,
+            mx=0.5 * self.accel_limit)
+
+        self.steer_control = PID(
+            kp=1.0,
+            ki=0.0,
+            kd=0.05)
+
+        self.steering_control = YawController(kwargs['wheel_base'], kwargs['steer_ratio'],
+                                              kwargs['min_speed'], kwargs['max_lat_accel'],
+                                              kwargs['max_steer_angle']
+                                              )
 
 
     def control(self, *args, **kwargs):
