@@ -87,7 +87,12 @@ class WaypointUpdater(object):
     def traffic_cb(self, msg):
         # For initial phase ignore traffic lights, later on flag traffic light
         prev_red_light_waypoint = self.red_light_waypoint
-        self.red_light_waypoint = msg.data if msg.data >= 0 else None
+        
+        if msg.data >= 0 :
+            self.red_light_waypoint = msg.data
+            rospy.loginfo("TrafficLight red or yellow: %s", str(self.red_light_waypoint)) 
+        else:
+            None
 
         #if self.red_light_waypoint != None:
         #    rospy.logwarn("self.red_light_waypoint: %s", str(self.red_light_waypoint))
