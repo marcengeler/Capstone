@@ -226,7 +226,7 @@ class TLDetector(object):
             '''
             l_x = light.pose.pose.position.x
             l_y = light.pose.pose.position.y
-            if self.euclidianDistance(l_x, l_y, tl_x, tl_y) < 30:
+            if self.euclidianDistance(l_x, l_y, tl_x, tl_y) < TL_DETECTION_RANGE:
                 return light.state
         return state
 
