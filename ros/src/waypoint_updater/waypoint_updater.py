@@ -51,11 +51,18 @@ class WaypointUpdater(object):
         
         self.red_light_waypoint = None # Waypoint index of the next red light
         self.prev_red_light_waypoint = None
+
+        #self.msg_seq = 0 # Sequence number of /final_waypoints message
+
         
         # Parameters
         self.stop_on_red = rospy.get_param('~stop_on_red', True)      # Enable/disable stopping on red lights
         self.force_stop_on_last_waypoint = rospy.get_param('~force_stop_on_last_waypoint', True)   # Enable/disable stopping on last waypoint
+
+        #self.accel = rospy.get_param('~target_brake_accel', -1.)     # Target brake acceleration
         self.accel = rospy.get_param('~target_brake_accel', -2.)     # Target brake acceleration
+        #self.stop_distance = rospy.get_param('~stop_distance', 5.0)  # Distance (m) where car will stop before red light
+
         self.stop_distance = rospy.get_param('~stop_distance', 10.0)  # Distance (m) where car will stop before red light
 
 
@@ -80,7 +87,16 @@ class WaypointUpdater(object):
     def traffic_cb(self, msg):
         # For initial phase ignore traffic lights, later on flag traffic light
         prev_red_light_waypoint = self.red_light_waypoint
-        self.red_light_waypoint = msg.data if msg.data >= 0 else None
+        
+        if msg.data >= 0 :
+            self.red_light_waypoint = msg.data
+            rospy.loginfo("TrafficLight red or yellow: %s", str(self.red_light_waypoint)) 
+        else:
+            self.red_light_waypoint = None
+
+        #if self.red_light_waypoint != None:
+        #    rospy.logwarn("self.red_light_waypoint: %s", str(self.red_light_waypoint))
+
 
 
         if prev_red_light_waypoint != self.red_light_waypoint:
@@ -99,6 +115,7 @@ class WaypointUpdater(object):
 
     def set_waypoint_velocity(self, waypoints, waypoint, velocity):
         waypoints[waypoint].twist.twist.linear.x = velocity
+
 
     def decelerate(self, waypoints, stop_index, stop_distance):
         """
@@ -161,10 +178,15 @@ class WaypointUpdater(object):
         return min_loc
         
     def send_final_waypoints(self):
+        red_idx = None
         if self.waypoints is None or self.current_pose is None:
             return
 
+
+        
         pos = self.find_closest_waypoint()
+
+
 
         final_waypoints, waypoint_idx = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
 
@@ -172,14 +194,18 @@ class WaypointUpdater(object):
             if self.prev_red_light_waypoint != self.red_light_waypoint:
                 self.prev_red_light_waypoint = self.red_light_waypoint
                 rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
+
             try:
                 red_idx = waypoint_idx.index(self.red_light_waypoint)
+                self.decelerate(final_waypoints, red_idx, self.stop_distance)
             except:
-                red_idx = 0
-                rospy.logwarn("Red Light Not in Index" + str(self.red_light_waypoint) + " " + str(waypoint_idx))
-            self.decelerate(final_waypoints, red_idx, self.stop_distance)
-        else:
-            red_idx = None
+                red_idx = None
+                # if missed red light just go forward without decelerate
+                rospy.logwarn("Red Light Not in Index" + str(self.red_light_waypoint) + " [" + str(min(waypoint_idx)) + " : " + str(max(waypoint_idx)) + "] ")
+        
+
+        
+        if red_idx is None:
             for (i, waypoint) in enumerate(final_waypoints):
                 self.set_waypoint_velocity(final_waypoints, i, MAX_SPEED)
 
