@@ -143,6 +143,14 @@ class TLClassifier(object):
 
     def tl2str(self, TrafficLightID):
         return self.msg2str[TrafficLightID]
+    def store_images(self, cam_image, tl_image, color):
+        dir_name = self.tl2str(color)
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        image_name_cm = str(self.img_counter) + "_cm" + ".jpg"
+        image_name_tl = str(self.img_counter) + "_tl" + ".jpg"
+        cv2.imwrite(os.path.join(dir_name, image_name_cm), cv2.cvtColor(cam_image, cv2.COLOR_BGR2RGB))
+        cv2.imwrite(os.path.join(dir_name, image_name_tl), cv2.cvtColor(tl_image, cv2.COLOR_BGR2RGB))
 
     def get_classification(self, image):
         with Timer('get_classification'):
@@ -163,7 +171,7 @@ class TLClassifier(object):
                 rospy.loginfo('--------' + self.tl2str(color) + '--------' )
             self.current_color = color
             self.img_counter += 1
-
+            self.store_images(image, traffic_light, color)
             return color
 
     def detection(self, image):
