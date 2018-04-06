@@ -166,9 +166,15 @@ class TLClassifier(object):
             img_crop = image[top:bottom, left:right]
             traffic_light = cv2.resize(img_crop, (32, 32))
             color = self.classification(traffic_light)
-            #print detected tl state
-            if color != self.current_color or (self.img_counter % 5) == 0:
-                rospy.loginfo('--------' + self.tl2str(color) + '--------' )
+            #--------------print detected tl state--------------
+            #if color != self.current_color or (self.img_counter % 5) == 0:
+            #    rospy.loginfo('--------' + self.tl2str(color) + '--------' )
+            #self.img_counter += 1
+
+                        # print out for debug
+            color = self.classification(traffic_light)
+            rospy.loginfo('--------' + self.tl2str(color) + '--------' )
+
             self.current_color = color
             self.img_counter += 1
             self.store_images(image, traffic_light, color)
