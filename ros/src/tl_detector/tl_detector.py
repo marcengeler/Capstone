@@ -11,13 +11,25 @@ import tf
 import cv2
 import yaml
 import math
+<<<<<<< HEAD
 import time
+||||||| merged common ancestors
+=======
+import sys
+import numpy as np
+import time
+>>>>>>> master
 
-STATE_COUNT_THRESHOLD = 3
 
+#STATE_COUNT_THRESHOLD = 3
+STATE_COUNT_THRESHOLD = 1
 #Traffic Light detection range
+MEASURE_PERFORMANCE = False #True
 TL_DETECTION_RANGE = 50
 USE_CLASSIFIER = True
+ProcessingTimeSum = 0
+ProcessingIterations = 0
+REDUCE_FREQ = False #True
 
 class TLDetector(object):
     def __init__(self):
@@ -55,6 +67,9 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
+        self.img_rx_time = time.time()
+        rospy.loginfo("TLDetector init at:"+str(self.img_rx_time))
+
         rospy.spin()
 
     def pose_cb(self, msg):
@@ -67,6 +82,7 @@ class TLDetector(object):
         self.lights = msg.lights
 
     def image_cb(self, msg):
+        global ProcessingTimeSum, ProcessingIterations
         """Identifies red lights in the incoming camera image and publishes the index
             of the waypoint closest to the red light's stop line to /traffic_waypoint
 
@@ -74,8 +90,21 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
+        if REDUCE_FREQ: # only start to detect image every 500ms
+            rx_time = time.time()
+            #rospy.loginfo("new img rx at:"+str(rx_time))
+            if rx_time - self.img_rx_time < 2: #ms ??
+                return
+            else:
+                self.img_rx_time = time.time()
+                rospy.loginfo("more than 200ms ??, start detect----------")
+
+        if MEASURE_PERFORMANCE:
+            startTime = time.time()
+
         self.has_image = True
         self.camera_image = msg
+        # start to call classification:
         light_wp, state = self.process_traffic_lights()
 
         '''
@@ -89,13 +118,25 @@ class TLDetector(object):
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
-            light_wp = light_wp if state == TrafficLight.RED else -1
+
+            if state == TrafficLight.RED or state == TrafficLight.YELLOW:
+                light_wp = light_wp
+            else:
+                light_wp = -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
 
+        if MEASURE_PERFORMANCE:
+            endTime = time.time()
+            duration = endTime-startTime
+            ProcessingTimeSum += duration
+            ProcessingIterations += 1
+            rospy.loginfo("Processing time of image_cb(): " + str(duration) + " average: " + str(ProcessingTimeSum/ProcessingIterations))
+
+###########################################################################################################################
     def get_closest_waypoint(self, pose):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
