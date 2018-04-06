@@ -11,14 +11,9 @@ import tf
 import cv2
 import yaml
 import math
-<<<<<<< HEAD
-import time
-||||||| merged common ancestors
-=======
 import sys
 import numpy as np
 import time
->>>>>>> master
 
 
 #STATE_COUNT_THRESHOLD = 3
