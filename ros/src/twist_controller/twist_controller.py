@@ -54,14 +54,6 @@ class Controller(object):
         linear_velocity_error = linear_velocity - current_velocity
         controller_error = linear_velocity_error if (linear_velocity_error > 0) else (-linear_velocity_error)
 
-        if self.logging_index == 0:
-            rospy.logwarn("linear_velocity_error: " + str(linear_velocity_error))
-            rospy.logwarn("controller_error: " + str(controller_error))
-            rospy.logwarn("throttle: " + str(throttle))
-            rospy.logwarn("brake: " + str(brake))
-            self.logging_index += 1
-            self.logging_index = self.logging_index % 20
-
         throttle = self.throttle_control.step(controller_error, 1.0)
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
@@ -70,6 +62,14 @@ class Controller(object):
             brake = abs(throttle) * 100.0
         else:
             brake = 0.0
+
+        if self.logging_index == 0:
+            rospy.logwarn("linear_velocity_error: " + str(linear_velocity_error))
+            rospy.logwarn("controller_error: " + str(controller_error))
+            rospy.logwarn("throttle: " + str(throttle))
+            rospy.logwarn("brake: " + str(brake))
+            self.logging_index += 1
+            self.logging_index = self.logging_index % 20
         
         self.time = rospy.get_time()
         return throttle, brake, steer
