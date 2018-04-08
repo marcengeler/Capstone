@@ -50,13 +50,12 @@ class Controller(object):
         # steer = self.steer_control.step(steer, dt)
 
         linear_velocity_error = linear_velocity - current_velocity
+        controller_error = linera_velocity_error if (linear_velocity_error > 0) else (-linear_velocity_error)
 
-        velocity_correction = self.throttle_control.step(linear_velocity_error, 1.0)
-
-        throttle = velocity_correction
+        throttle = self.throttle_control.step(controller_error, 1.0)
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
-        if throttle < 0:
+        if linear_velocity_error < 0:
             throttle = 0.0
             brake = abs(throttle) * 100.0
         else:
