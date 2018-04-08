@@ -178,7 +178,7 @@ class WaypointUpdater(object):
         if self.red_light_waypoint != None :
             if self.prev_red_light_waypoint != self.red_light_waypoint:
                 self.prev_red_light_waypoint = self.red_light_waypoint
-                rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
+                #rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
 
             try:
                 red_idx = waypoint_idx.index(self.red_light_waypoint)
@@ -186,7 +186,7 @@ class WaypointUpdater(object):
             except:
                 red_idx = None
                 # if missed red light just go forward without decelerate
-                rospy.logwarn("Red Light Not in Index" + str(self.red_light_waypoint) + " [" + str(min(waypoint_idx)) + " : " + str(max(waypoint_idx)) + "] ")
+                #rospy.logwarn("Red Light Not in Index" + str(self.red_light_waypoint) + " [" + str(min(waypoint_idx)) + " : " + str(max(waypoint_idx)) + "] ")
 
         if red_idx is None:
             for (i, waypoint) in enumerate(final_waypoints):
