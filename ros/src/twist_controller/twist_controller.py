@@ -16,6 +16,8 @@ class Controller(object):
         self.decel_limit = kwargs['decel_limit']
         self.TP1_throttle = LowPassFilter(0.5, 0.1)
 
+        self.logging_index = 0
+
         self.throttle_control = PID(
             kp= 0.8,
             ki= 0.25,
@@ -47,10 +49,18 @@ class Controller(object):
         dt = rospy.get_time() - self.time
 
         steer = self.steering_control.get_steering(linear_velocity, angular_velocity, current_velocity)
-        # steer = self.steer_control.step(steer, dt)
+        steer = self.steer_control.step(steer, dt)
 
         linear_velocity_error = linear_velocity - current_velocity
         controller_error = linear_velocity_error if (linear_velocity_error > 0) else (-linear_velocity_error)
+
+        if self.logging_index == 0:
+            rospy.logwarn("linear_velocity_error: " + str(linear_velocity_error))
+            rospy.logwarn("controller_error: " + str(controller_error))
+            rospy.logwarn("throttle: " + str(throttle))
+            rospy.logwarn("brake: " + str(brake))
+            self.logging_index += 1
+            self.logging_index = self.logging_index % 20
 
         throttle = self.throttle_control.step(controller_error, 1.0)
 

@@ -90,9 +90,6 @@ class DBWNode(object):
                 current_linear_velocity = current_linear_velocity,
                 dbw_state=self.dbw_enabled)
 
-            rospy.logwarn("throttle: " + str(throttle))
-            rospy.logwarn("brake: " + str(brake))
-
             if self.dbw_enabled:
                 self.publish(throttle, brake, steering)
             rate.sleep()
