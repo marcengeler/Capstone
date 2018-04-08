@@ -21,7 +21,7 @@ as well as to verify your TL classifier.
 '''
 
 LOOKAHEAD_WPS = 200  # Number of waypoints we will publish. You can change this number
-MAX_SPEED = 8.3  # in M/s corresponds to 30 kph
+MAX_SPEED = 4.15  # in M/s corresponds to 15 kph
 
 PUBLISH_RATE = 20      # Publishing rate (Hz)
 
@@ -123,6 +123,7 @@ class WaypointUpdater(object):
         """
         if stop_index <= 0:
             return
+        dist = self.distance(waypoints, 0, stop_index)
         dist = self.distance(waypoints, 0, stop_index)
         step = dist / stop_index
         # Generate waypoint velocity by traversing the waypoint list backwards:
