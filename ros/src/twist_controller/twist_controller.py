@@ -61,7 +61,6 @@ class Controller(object):
             brake = 0.0
 
         rospy.logwarn("linear_velocity_error: " + str(linear_velocity_error))
-        rospy.logwarn("controller_error: " + str(controller_error))
         rospy.logwarn("throttle: " + str(throttle))
         rospy.logwarn("brake: " + str(brake))
         
