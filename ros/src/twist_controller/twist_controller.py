@@ -55,8 +55,13 @@ class Controller(object):
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
         if throttle < 0:
-            brake = -throttle * 100.0
+            brake = -throttle * 30.0
             throttle = 0.0
+
+            # Reset integral value if the car has to accelerate again, this way
+            # the controler should be less aggressive.
+            if linear_velocity_error > 0:
+                self.throttle_control.reset()
         else:
             brake = 0.0
 
