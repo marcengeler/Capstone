@@ -24,8 +24,8 @@ class Controller(object):
             mx= 0.5 * self.accel_limit)
 
         self.steer_control = PID(
-            kp=1.0,
-            ki=0.0,
+            kp=2.0,
+            ki=0.1,
             kd=0.05)
 
         self.steering_control = YawController(kwargs['wheel_base'], kwargs['steer_ratio'],
