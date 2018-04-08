@@ -16,7 +16,6 @@ class Controller(object):
         self.decel_limit = kwargs['decel_limit']
         self.TP1_throttle = LowPassFilter(0.5, 0.1)
 
-
         self.throttle_control = PID(
             kp= 0.8,
             ki= 0.25,
@@ -25,8 +24,8 @@ class Controller(object):
             mx= 0.5 * self.accel_limit)
 
         self.steer_control = PID(
-            kp=0.5,
-            ki=0.1,
+            kp=1.0,
+            ki=0.2,
             kd=0.0)
 
         self.steering_control = YawController(kwargs['wheel_base'], kwargs['steer_ratio'],
