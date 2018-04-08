@@ -55,7 +55,7 @@ class Controller(object):
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
         if throttle < 0:
-            brake = -throttle * 30.0
+            brake = -throttle * 50.0
             throttle = 0.0
 
             # Reset integral value if the car has to accelerate again, this way
