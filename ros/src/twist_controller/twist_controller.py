@@ -33,7 +33,6 @@ class Controller(object):
                                               kwargs['max_steer_angle']
                                               )
 
-
     def control(self, *args, **kwargs):
         linear_velocity = kwargs['target_linear_velocity']
         angular_velocity = kwargs['target_angular_velocity']
