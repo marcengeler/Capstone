@@ -20,7 +20,7 @@ class Controller(object):
             kp= 0.8,
             ki= 0.25,
             kd= 0.05,
-            mn= -1.0,
+            mn= -100.0,
             mx= 1.0)
 
         self.steer_control = PID(
