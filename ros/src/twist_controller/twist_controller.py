@@ -20,8 +20,8 @@ class Controller(object):
             kp= 0.8,
             ki= 0.25,
             kd= 0.05,
-            mn= self.decel_limit,
-            mx= 0.5 * self.accel_limit)
+            mn= -1.0,
+            mx= 1.0)
 
         self.steer_control = PID(
             kp=1.0,
@@ -52,7 +52,7 @@ class Controller(object):
         linear_velocity_error = linear_velocity - current_velocity
         controller_error = linear_velocity_error if (linear_velocity_error > 0) else (-linear_velocity_error)
 
-        throttle = self.throttle_control.step(controller_error, 1.0)
+        throttle = self.throttle_control.step(controller_error, dt)
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
         if linear_velocity_error < 0:
