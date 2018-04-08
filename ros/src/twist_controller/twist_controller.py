@@ -63,13 +63,14 @@ class Controller(object):
         else:
             brake = 0.0
 
+        self.logging_index = self.logging_index % 5
+        
         if self.logging_index == 0:
             rospy.logwarn("linear_velocity_error: " + str(linear_velocity_error))
             rospy.logwarn("controller_error: " + str(controller_error))
             rospy.logwarn("throttle: " + str(throttle))
             rospy.logwarn("brake: " + str(brake))
             self.logging_index += 1
-            self.logging_index = self.logging_index % 20
         
         self.time = rospy.get_time()
         return throttle, brake, steer
