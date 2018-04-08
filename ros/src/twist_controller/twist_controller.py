@@ -26,7 +26,7 @@ class Controller(object):
         self.steer_control = PID(
             kp=0.5,
             ki=0.1,
-            kd=0.05)
+            kd=0.0)
 
         self.steering_control = YawController(kwargs['wheel_base'], kwargs['steer_ratio'],
                                               kwargs['min_speed'], kwargs['max_lat_accel'],
@@ -47,7 +47,7 @@ class Controller(object):
         dt = rospy.get_time() - self.time
 
         steer = self.steering_control.get_steering(linear_velocity, angular_velocity, current_velocity)
-        steer = self.steer_control.step(steer, dt)
+        # steer = self.steer_control.step(steer, dt)
 
         linear_velocity_error = linear_velocity - current_velocity
 
