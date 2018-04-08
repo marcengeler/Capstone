@@ -20,7 +20,7 @@ class Controller(object):
             kp= 0.8,
             ki= 0.25,
             kd= 0.05,
-            mn= -100.0,
+            mn= -1.0,
             mx= 1.0)
 
         self.steer_control = PID(
@@ -55,7 +55,7 @@ class Controller(object):
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
         if throttle < 0:
-            brake = -throttle
+            brake = -throttle * 100.0
             throttle = 0.0
         else:
             brake = 0.0
