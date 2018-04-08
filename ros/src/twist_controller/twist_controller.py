@@ -50,7 +50,7 @@ class Controller(object):
         # steer = self.steer_control.step(steer, dt)
 
         linear_velocity_error = linear_velocity - current_velocity
-        controller_error = linera_velocity_error if (linear_velocity_error > 0) else (-linear_velocity_error)
+        controller_error = linear_velocity_error if (linear_velocity_error > 0) else (-linear_velocity_error)
 
         throttle = self.throttle_control.step(controller_error, 1.0)
 
