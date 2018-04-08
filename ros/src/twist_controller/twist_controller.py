@@ -24,7 +24,7 @@ class Controller(object):
             mx= 0.5 * self.accel_limit)
 
         self.steer_control = PID(
-            kp=2.0,
+            kp=0.5,
             ki=0.1,
             kd=0.05)
 
