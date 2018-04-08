@@ -54,8 +54,8 @@ class Controller(object):
 
         # We need throttle can be minus, i.e. < 0, when car needs slow down.
         if throttle < 0:
+            brake = -throttle
             throttle = 0.0
-            brake = abs(throttle)
         else:
             brake = 0.0
 
