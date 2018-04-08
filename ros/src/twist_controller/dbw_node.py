@@ -30,6 +30,7 @@ Once you have the proposed throttle, brake, and steer values, publish it on the 
 that we have created in the `__init__` function.
 
 '''
+
 # 8.3 corresponds to 30 kph
 MAX_SPEED = 4.2
 
@@ -89,7 +90,7 @@ class DBWNode(object):
                 current_linear_velocity = current_linear_velocity,
                 dbw_state=self.dbw_enabled)
 
-            rospy.logwarn("throttle: {0], brake: {1}".format(throttle, brake))
+            rospy.logwarn("throttle: " + throttle + ", brake: " + brake)
 
             if self.dbw_enabled:
                 self.publish(throttle, brake, steering)
