@@ -11,6 +11,7 @@ import glob
 from cv_bridge import CvBridge, CvBridgeError
 from std_msgs.msg import Bool
 from sensor_msgs.msg import Image
+VERBOSE = False
 
 class Timer:
     def __init__(self, message = ''):
@@ -20,7 +21,8 @@ class Timer:
         return self
     def __exit__(self, *args):
         message = '{} in {} seconds'.format(self.message, time.clock() - self.start)
-        rospy.loginfo(message)
+        if VERBOSE:
+            rospy.loginfo(message)
 
 # Function to load a graph from a protobuf file
 def _load_graph(graph_file, config, verbose = False):
@@ -34,6 +36,8 @@ def _load_graph(graph_file, config, verbose = False):
         graph = tf.get_default_graph()
         if verbose:
             print ('Graph v' + str(graph.version) + ', nodes: '+ ', '.join([n.name for n in graph.as_graph_def().node]))
+        log_msg = "Model " + graph_file + " loaded " + str(len(graph.as_graph_def().node)) + " nodes"
+        rospy.loginfo(log_msg)
         return graph
 
 # extract traffic light box with maximum confidence
@@ -82,7 +86,7 @@ def _extractBox(boxes, scores, classes, confidence, im_width, im_height):
 
 class TLClassifier(object):
     def __init__(self, model_dir = None):
-
+        rospy.loginfo('Using tensorflow version {}'.format(str(tf.__version__)))
         ## Get model directory and check model files
         if model_dir is None:
             import rospkg
@@ -173,32 +177,18 @@ class TLClassifier(object):
             #    rospy.loginfo('--------' + self.tl2str(color) + '--------' )
             #self.img_counter += 1
 
-                        # print out for debug
-            color = self.classification(traffic_light)
-            
-            #rospy.loginfo('--------' + self.tl2str(color) + '--------' )
-
-
             if self.prev_color != TrafficLight.UNKNOWN:
-                if self.prev_color != color :
+                if self.prev_color != color:
                     self.diff_counter = 1
-                        
-                    
-                        
-                else : # self.prev_color == color 
+                else: # self.prev_color == color 
                     if self.current_color != self.prev_color:
-                    
                         self.diff_counter += 1
                         #rospy.logwarn('---new color-----' + self.tl2str(color) + '----counter----' +str(self.diff_counter) )
-                        
                         if self.diff_counter == 3:
                             #rospy.logwarn('--------' + self.tl2str(self.current_color) + '----change to new----' + self.tl2str(self.prev_color)  )
                             self.current_color = self.prev_color
                             self.diff_counter = 0
-                            
-
                 self.prev_color = color
-                    
             else:
                 self.prev_color = color
                 self.current_color = color
