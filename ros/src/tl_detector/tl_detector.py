@@ -20,7 +20,7 @@ import time
 STATE_COUNT_THRESHOLD = 1
 #Traffic Light detection range
 MEASURE_PERFORMANCE = False #True
-TL_DETECTION_RANGE = 50
+TL_DETECTION_RANGE = 100 #1000 #50
 ProcessingTimeSum = 0
 ProcessingIterations = 0
 
