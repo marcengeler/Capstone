@@ -16,15 +16,10 @@ import numpy as np
 import time
 
 
-#STATE_COUNT_THRESHOLD = 3
-STATE_COUNT_THRESHOLD = 1
+STATE_COUNT_THRESHOLD = 3
 #Traffic Light detection range
-MEASURE_PERFORMANCE = False #True
 USE_CLASSIFIER = True
 TL_DETECTION_RANGE = 100 #1000 #50
-ProcessingTimeSum = 0
-ProcessingIterations = 0
-REDUCE_FREQ = False #True
 
 class TLDetector(object):
     def __init__(self):
@@ -62,7 +57,6 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
-        self.img_rx_time = time.time()
         rospy.loginfo("TLDetector is ready -> notify waypoint_updater")
         #notify updater about detector readiness, use max negative integer for this
         self.upcoming_red_light_pub.publish((-1234))
@@ -86,18 +80,6 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
-        if REDUCE_FREQ: # only start to detect image every 500ms
-            rx_time = time.time()
-            #rospy.loginfo("new img rx at:"+str(rx_time))
-            if rx_time - self.img_rx_time < 2: #ms ??
-                return
-            else:
-                self.img_rx_time = time.time()
-                rospy.loginfo("more than 200ms ??, start detect----------")
-
-        if MEASURE_PERFORMANCE:
-            startTime = time.time()
-
         self.has_image = True
         self.camera_image = msg
         # start to call classification:
@@ -125,14 +107,6 @@ class TLDetector(object):
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
 
-        if MEASURE_PERFORMANCE:
-            endTime = time.time()
-            duration = endTime-startTime
-            ProcessingTimeSum += duration
-            ProcessingIterations += 1
-            rospy.loginfo("Processing time of image_cb(): " + str(duration) + " average: " + str(ProcessingTimeSum/ProcessingIterations))
-
-###########################################################################################################################
     def get_closest_waypoint(self, pose):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem

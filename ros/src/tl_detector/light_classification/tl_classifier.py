@@ -143,9 +143,6 @@ class TLClassifier(object):
         self.detection(cv2.cvtColor(np.zeros((600, 800), np.uint8), cv2.COLOR_GRAY2RGB))
         self.classification(cv2.cvtColor(np.zeros((32, 32), np.uint8), cv2.COLOR_GRAY2RGB))
         self.img_counter = 0
-        self.current_color = TrafficLight.UNKNOWN
-        self.prev_color = TrafficLight.UNKNOWN
-        self.diff_counter = 0
         
     def tl2str(self, TrafficLightID):
         return self.msg2str[TrafficLightID]
@@ -176,24 +173,8 @@ class TLClassifier(object):
             #if color != self.current_color or (self.img_counter % 5) == 0:
             #    rospy.loginfo('--------' + self.tl2str(color) + '--------' )
             #self.img_counter += 1
-
-            if self.prev_color != TrafficLight.UNKNOWN:
-                if self.prev_color != color:
-                    self.diff_counter = 1
-                else: # self.prev_color == color 
-                    if self.current_color != self.prev_color:
-                        self.diff_counter += 1
-                        #rospy.logwarn('---new color-----' + self.tl2str(color) + '----counter----' +str(self.diff_counter) )
-                        if self.diff_counter == 3:
-                            #rospy.logwarn('--------' + self.tl2str(self.current_color) + '----change to new----' + self.tl2str(self.prev_color)  )
-                            self.current_color = self.prev_color
-                            self.diff_counter = 0
-                self.prev_color = color
-            else:
-                self.prev_color = color
-                self.current_color = color
-                #rospy.logwarn('--init------' + self.tl2str(self.current_color) + '----')               
-            return self.current_color
+            
+            return color
 
     def detection(self, image):
         """ Traffic light detection """
