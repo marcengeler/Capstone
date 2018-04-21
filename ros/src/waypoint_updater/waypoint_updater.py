@@ -21,7 +21,7 @@ as well as to verify your TL classifier.
 '''
 
 LOOKAHEAD_WPS = 200  # Number of waypoints we will publish. You can change this number
-MAX_SPEED = 8.3  # in M/s corresponds to 30 kph
+MAX_SPEED = 4.15  # in M/s corresponds to 15 kph
 
 PUBLISH_RATE = 20      # Publishing rate (Hz)
 
@@ -51,18 +51,11 @@ class WaypointUpdater(object):
         
         self.red_light_waypoint = None # Waypoint index of the next red light
         self.prev_red_light_waypoint = None
-
-        #self.msg_seq = 0 # Sequence number of /final_waypoints message
-
         
         # Parameters
         self.stop_on_red = rospy.get_param('~stop_on_red', True)      # Enable/disable stopping on red lights
         self.force_stop_on_last_waypoint = rospy.get_param('~force_stop_on_last_waypoint', True)   # Enable/disable stopping on last waypoint
-
-        #self.accel = rospy.get_param('~target_brake_accel', -1.)     # Target brake acceleration
         self.accel = rospy.get_param('~target_brake_accel', -2.)     # Target brake acceleration
-        #self.stop_distance = rospy.get_param('~stop_distance', 5.0)  # Distance (m) where car will stop before red light
-
         self.stop_distance = rospy.get_param('~stop_distance', 10.0)  # Distance (m) where car will stop before red light
 
 
@@ -94,11 +87,6 @@ class WaypointUpdater(object):
         else:
             self.red_light_waypoint = None
 
-        #if self.red_light_waypoint != None:
-        #    rospy.logwarn("self.red_light_waypoint: %s", str(self.red_light_waypoint))
-
-
-
         if prev_red_light_waypoint != self.red_light_waypoint:
             if debugging:
                 rospy.loginfo("TrafficLight changed: %s", str(self.red_light_waypoint))
@@ -124,7 +112,9 @@ class WaypointUpdater(object):
         if stop_index <= 0:
             return
         dist = self.distance(waypoints, 0, stop_index)
+        dist = self.distance(waypoints, 0, stop_index)
         step = dist / stop_index
+
         # Generate waypoint velocity by traversing the waypoint list backwards:
         #  - Everything beyond stop_index will have velocity = 0
         #  - Before that, constant (de)cceleration is applied until reaching
@@ -182,18 +172,13 @@ class WaypointUpdater(object):
         if self.waypoints is None or self.current_pose is None:
             return
 
-
-        
         pos = self.find_closest_waypoint()
-
-
-
         final_waypoints, waypoint_idx = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
 
         if self.red_light_waypoint != None :
             if self.prev_red_light_waypoint != self.red_light_waypoint:
                 self.prev_red_light_waypoint = self.red_light_waypoint
-                rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
+                #rospy.logwarn("self.red_light_waypoint=" + str(self.red_light_waypoint))
 
             try:
                 red_idx = waypoint_idx.index(self.red_light_waypoint)
@@ -201,10 +186,8 @@ class WaypointUpdater(object):
             except:
                 red_idx = None
                 # if missed red light just go forward without decelerate
-                rospy.logwarn("Red Light Not in Index" + str(self.red_light_waypoint) + " [" + str(min(waypoint_idx)) + " : " + str(max(waypoint_idx)) + "] ")
-        
+                #rospy.logwarn("Red Light Not in Index" + str(self.red_light_waypoint) + " [" + str(min(waypoint_idx)) + " : " + str(max(waypoint_idx)) + "] ")
 
-        
         if red_idx is None:
             for (i, waypoint) in enumerate(final_waypoints):
                 self.set_waypoint_velocity(final_waypoints, i, MAX_SPEED)

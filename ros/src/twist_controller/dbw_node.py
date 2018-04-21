@@ -30,8 +30,9 @@ Once you have the proposed throttle, brake, and steer values, publish it on the 
 that we have created in the `__init__` function.
 
 '''
+
 # 8.3 corresponds to 30 kph
-MAX_SPEED = 4.2 #8.3 m/s
+MAX_SPEED = 4.2
 
 class DBWNode(object):
     def __init__(self):
@@ -79,24 +80,14 @@ class DBWNode(object):
                 continue
 
             current_linear_velocity = self.current_velocity.twist.linear.x
-
-            
-
-            #throttle, brake, steering = self.controller.control(linear_velocity=self.twist.twist.linear, angular_velocity=self.twist.twist.angular, current_velocity=self.current_velocity.twist.linear, dbw_state=self.dbw_enabled)
-
-            #prev_target_linear_velocity = target_linear_velocity
-
             target_linear_velocity = self.twist.twist.linear.x
-
-            #if target_linear_velocity != prev_target_linear_velocity:
-            #    rospy.logwarn("dbw_node.py: loop(): new target v= " + str(target_linear_velocity))
-
             target_angular_velocity = self.twist.twist.angular.z
-            #cross_track_error = cte_calculator.get_cross_track_error(self.final_waypoints, self.current_pose)
+
 
             throttle, brake, steering = self.controller.control(
-                target_linear_velocity=target_linear_velocity,target_angular_velocity=target_angular_velocity,current_linear_velocity=current_linear_velocity, 
-                #cross_track_error, duration_in_seconds
+                target_linear_velocity = target_linear_velocity,
+                target_angular_velocity = target_angular_velocity,
+                current_linear_velocity = current_linear_velocity,
                 dbw_state=self.dbw_enabled)
 
             if self.dbw_enabled:
@@ -119,14 +110,10 @@ class DBWNode(object):
         bcmd.enable = True
         bcmd.pedal_cmd_type = BrakeCmd.CMD_TORQUE
         bcmd.pedal_cmd = brake
-        #if brake > 0.0:
-        #    rospy.logwarn("dbw_node.py: publish(): bcmd.pedal_cmd = brake = " + str(brake))
         self.brake_pub.publish(bcmd)
 
     def dbw_enabled_cb(self, msg):
-        #self.dbw_enabled = msg
         rospy.logwarn("DBW_ENABLED %s" % msg)
-        #self.is_dbw_enabled = message.data
         self.dbw_enabled = msg.data
 
     def current_velocity_cb(self, msg):

@@ -140,7 +140,9 @@ class TLClassifier(object):
         self.classification(cv2.cvtColor(np.zeros((32, 32), np.uint8), cv2.COLOR_GRAY2RGB))
         self.img_counter = 0
         self.current_color = TrafficLight.UNKNOWN
-
+        self.prev_color = TrafficLight.UNKNOWN
+        self.diff_counter = 0
+        
     def tl2str(self, TrafficLightID):
         return self.msg2str[TrafficLightID]
     def store_images(self, cam_image, tl_image, color):
@@ -173,12 +175,35 @@ class TLClassifier(object):
 
                         # print out for debug
             color = self.classification(traffic_light)
-            rospy.loginfo('--------' + self.tl2str(color) + '--------' )
+            
+            #rospy.loginfo('--------' + self.tl2str(color) + '--------' )
 
-            self.current_color = color
-            self.img_counter += 1
-            self.store_images(image, traffic_light, color)
-            return color
+
+            if self.prev_color != TrafficLight.UNKNOWN:
+                if self.prev_color != color :
+                    self.diff_counter = 1
+                        
+                    
+                        
+                else : # self.prev_color == color 
+                    if self.current_color != self.prev_color:
+                    
+                        self.diff_counter += 1
+                        #rospy.logwarn('---new color-----' + self.tl2str(color) + '----counter----' +str(self.diff_counter) )
+                        
+                        if self.diff_counter == 3:
+                            #rospy.logwarn('--------' + self.tl2str(self.current_color) + '----change to new----' + self.tl2str(self.prev_color)  )
+                            self.current_color = self.prev_color
+                            self.diff_counter = 0
+                            
+
+                self.prev_color = color
+                    
+            else:
+                self.prev_color = color
+                self.current_color = color
+                #rospy.logwarn('--init------' + self.tl2str(self.current_color) + '----')               
+            return self.current_color
 
     def detection(self, image):
         """ Traffic light detection """
