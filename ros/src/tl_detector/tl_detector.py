@@ -63,8 +63,9 @@ class TLDetector(object):
         self.state_count = 0
 
         self.img_rx_time = time.time()
-        rospy.loginfo("TLDetector init at:"+str(self.img_rx_time))
-
+        rospy.loginfo("TLDetector is ready -> notify waypoint_updater")
+        #notify updater about detector readiness, use max negative integer for this
+        self.upcoming_red_light_pub.publish((-1234))
         rospy.spin()
 
     def pose_cb(self, msg):
