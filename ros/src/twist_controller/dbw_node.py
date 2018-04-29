@@ -113,7 +113,8 @@ class DBWNode(object):
         self.brake_pub.publish(bcmd)
 
     def dbw_enabled_cb(self, msg):
-        rospy.logwarn("DBW_ENABLED %s" % msg)
+        if msg.data!=self.dbw_enabled:
+            rospy.logwarn("DBW_ENABLED change from %d to %d", self.dbw_enabled, msg.data)
         self.dbw_enabled = msg.data
 
     def current_velocity_cb(self, msg):

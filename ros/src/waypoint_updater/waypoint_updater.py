@@ -57,7 +57,7 @@ class WaypointUpdater(object):
         self.force_stop_on_last_waypoint = rospy.get_param('~force_stop_on_last_waypoint', True)   # Enable/disable stopping on last waypoint
         self.accel = rospy.get_param('~target_brake_accel', -2.)     # Target brake acceleration
         self.stop_distance = rospy.get_param('~stop_distance', 10.0)  # Distance (m) where car will stop before red light
-
+        self.tl_detector_is_ready = False
 
         # Launch periodic publishing into /final_waypoints
         rate = rospy.Rate(PUBLISH_RATE)
@@ -78,10 +78,14 @@ class WaypointUpdater(object):
         self.base_waypoints = self.waypoints
 
     def traffic_cb(self, msg):
+        if msg.data == (-1234):
+            self.tl_detector_is_ready = True
+            rospy.loginfo("TrafficLight detector initialized -> start sending waypoints")
+        
         # For initial phase ignore traffic lights, later on flag traffic light
         prev_red_light_waypoint = self.red_light_waypoint
         
-        if msg.data >= 0 :
+        if msg.data >= 0:
             self.red_light_waypoint = msg.data
             rospy.loginfo("TrafficLight red or yellow: %s", str(self.red_light_waypoint)) 
         else:
@@ -167,11 +171,14 @@ class WaypointUpdater(object):
                 min_loc = i
         return min_loc
         
+    def safe_to_send_waypoints(self):
+        return self.waypoints is not None and self.current_pose is not None and self.tl_detector_is_ready != False     
+    
     def send_final_waypoints(self):
-        red_idx = None
-        if self.waypoints is None or self.current_pose is None:
+        if self.safe_to_send_waypoints() != True:
             return
-
+        
+        red_idx = None
         pos = self.find_closest_waypoint()
         final_waypoints, waypoint_idx = self.get_circular_waypoints(pos, pos + LOOKAHEAD_WPS)
 
